@@ -765,3 +765,121 @@ Dans la page de test _Test.js_, ajoutez un composant affichant le nom et le pré
 Résultat attendu :
 
 <img src="img/test4.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+_Test.js_
+
+```
+import React from 'react';
+import { View, TextInput, Text, Button, StyleSheet } from 'react-native';
+
+const CrewMember = ({ firstName, lastName }) => {
+  return (
+    <View>
+      <Text>
+        Membre d'équipage {firstName} {lastName} au rapport !
+      </Text>
+    </View>
+  );
+}
+
+const Test = () => {
+  return (
+    <View style={styles.container}>
+      <View style={styles.subContainer}>
+        <Text style={styles.title}>
+          Nouvelle recrue
+      </Text>
+        <TextInput placeholder='Entrez votre nom'
+          style={styles.form} />
+        <TextInput placeholder='Entrez votre prénom'
+          style={[styles.form, { marginBottom: 12 }]} />
+        <Button
+          title='Ajouter'
+          color='#005288'
+          onPress={() => { }}
+        />
+      </View>
+      <View style={styles.subContainer}>
+        <Text style={styles.title}>
+          Composition de l'équipage
+        </Text>
+        <CrewMember firstName="John" lastName="Doe" />
+      </View>
+    </View>
+  );
+}
+
+export default Test;
+
+const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: 12,
+  },
+  subContainer: {
+    paddingVertical: 16,
+  },
+  title: {
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  form: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+</details>
+
+### Le state des composants
+
+Représente la "base de données" du composant. Lorsque le state change, le composant va visuellement se rendre à nouveau. Utilisation du Hook _useState_ sous la forme :  
+const [**Variable**, **Modificateur**] = useState(_ValeurParDéfaut_);
+
+Exemple :
+
+```
+import React, { useState } from "react";
+import { Button, Text, View } from "react-native";
+
+import React, { useState } from "react";
+import { Button, Text, View } from "react-native";
+
+const Test = () => {
+
+  const [name, setName] = useState("Paul");
+
+  const changeName = () => {
+    console.log("Current name is : " + name);
+    setName("Jean");
+    console.log("New name is : " + name);
+  }
+
+  return (
+    <View>
+      <Text>
+        I am {name}
+      </Text>
+      <Button
+        title="No, your name is Jean !"
+        onPress={changeName}/>
+    </View>
+  );
+}
+
+```
+
+**Attention :** modifier le state est une opération asynchrone
+
+### Exercice : utiliser le state dans le formulaire de test
+
+Affichez le nombre de membres d'équipage. Pour l'instant, il s'agit du nombre de fois ou le boutton "Ajouter" a été appuyé
+
+Résultat attendu :
+
+<img src="img/test5.png" height="400" />

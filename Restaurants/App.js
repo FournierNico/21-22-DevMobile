@@ -10,7 +10,7 @@ import Test2 from './src/components/Test2';
 export default function App() {
   return (
     <View style={styles.container}>
-      <RestaurantListItem />
+      <Test />
       <StatusBar style="auto" />
     </View>
   );

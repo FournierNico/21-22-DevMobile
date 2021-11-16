@@ -1,13 +1,23 @@
 import React from 'react';
 import { View, TextInput, Text, Button, StyleSheet } from 'react-native';
 
+const CrewMember = ({ firstName, lastName }) => {
+  return (
+    <View>
+      <Text>
+        Membre d'équipage {firstName} {lastName} au rapport !
+      </Text>
+    </View>
+  );
+}
+
 const Test = () => {
   return (
     <View style={styles.container}>
       <View style={styles.subContainer}>
         <Text style={styles.title}>
           Nouvelle recrue
-        </Text>
+      </Text>
         <TextInput placeholder='Entrez votre nom'
           style={styles.form} />
         <TextInput placeholder='Entrez votre prénom'
@@ -22,6 +32,7 @@ const Test = () => {
         <Text style={styles.title}>
           Composition de l'équipage
         </Text>
+        <CrewMember firstName="John" lastName="Doe" />
       </View>
     </View>
   );
