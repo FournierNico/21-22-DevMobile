@@ -3,11 +3,12 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import Search from './src/components/Search';
+import Test from './src/components/Test';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Search />
+      <Test />
       <StatusBar style="auto" />
     </View>
   );

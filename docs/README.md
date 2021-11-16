@@ -255,3 +255,175 @@ Après sauvegarde des fichiers, vous pouvez observer le résultat suivant sur vo
 Créez un nouveau composant *Test.js* et affichez le résultat suivant : 
 
 <img src="img/test1.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+~~~
+import React from 'react';
+import { View, TextInput, Text, Button } from 'react-native';
+
+const Test = () => {
+  return (
+    <View>
+      <Text>
+        Nouvelle recrue
+      </Text>
+      <TextInput placeholder='Entrez votre nom' />
+      <TextInput placeholder='Entrez votre prénom' />
+      <Button title='Ajouter'
+        onPress={() => { }}
+      />
+      <Text>
+        Composition de l'équipage :
+      </Text>
+    </View>
+  );
+}
+
+export default Test;
+
+~~~
+
+</details>
+
+
+## Ajouter des styles
+
+Permettent de contrôler le rendu graphique des composants  
+Première version du code : 
+
+~~~
+<View style={{ paddingHorizontal: 12, marginTop: 16 }}>
+  <TextInput
+    placeholder='Nom du restaurant'
+    style={{ marginBottom: 16 }}
+  />
+  <Button
+    title='Rechercher'
+    color="#6b9c68"
+    onPress={() => { console.log('Coucou'); }}
+  />
+</View>
+~~~
+
+A noter que la composant *Button* n'a pas de props *style* (voir la doc React). Il faut donc soit utiliser une props existante (ici *color*), soit utiliser un autre composant React Native (*ToucheableOpacity* par exemple)
+
+Rendu : 
+
+<img src="img/style1.png" height="400" />
+
+Pour améliorer la lisibilité du code, il est possible (il faut toujours faire comme ça en fait) d'externaliser les styles du composant ; il faut utiliser *StyleSheet* :
+
+~~~
+import { ..., StyleSheet } from 'react-native';
+~~~
+
+On peut ensuite définir les styles du composant (en dehors de ce dernier, mais dans le même fichier) :
+
+~~~
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 16,
+  },
+});
+~~~
+
+Et enfin les appliquer à nos éléments :
+
+~~~
+return (
+  <View style={styles.container}>
+    <TextInput
+      placeholder='Nom du restaurant'
+      style={styles.inputRestaurantName}
+    />
+    <Button
+      title='Rechercher'
+      color="#6b9c68"
+      onPress={() => { console.log('Coucou'); }}
+    />
+  </View>
+);
+~~~
+
+**Gérer les couleurs dans l'application** 
+
+La couleur de notre bouton est définie dans ce composant, mais nous allons l'utiliser à plusieurs endroits de notre application ; il faudrait donc la définir une seule fois puis pouvoir l'utiliser quand on en a besoin.  
+Pour cela, on va créer un fichier unique pour gérer l'ensemble des couleurs. Commençons par créer un dossier *src/definitions* puis un fichier *Colors.js*.  
+Dans ce dernier, on va définir la couleur :
+
+~~~
+const Colors = {
+  mainGreen: '#6b9c68',
+};
+
+export default Colors;
+~~~
+
+Il suffit d'importer le fichier dans notre composant pour pouvoir utiliser la couleur : 
+
+~~~
+...
+import Colors from '../definitions/Colors';
+...
+  <Button
+    title='Rechercher'
+    color={Colors.mainGreen}
+    onPress={() => { console.log('Coucou'); }}
+  />
+...
+~~~
+
+<details>
+<summary>Code complet</summary>
+
+*Search.js*
+~~~
+import React from 'react';
+import { View, TextInput, Button, StyleSheet } from 'react-native';
+
+import Colors from '../definitions/Colors';
+
+const Search = () => {
+
+  return (
+    <View style={styles.container}>
+      <TextInput
+        placeholder='Nom du restaurant'
+        style={styles.inputRestaurantName}
+      />
+      <Button
+        title='Rechercher'
+        color={Colors.mainGreen}
+        onPress={() => { console.log('Coucou'); }}
+      />
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 16,
+  },
+});
+
+~~~
+
+</details>
+
+### Exercice : ajouter un style au composant custom
+
+Reprenez le composant *Test.js* et affichez le résultat suivant : 
+
+<img src="img/test2.png" height="400" />

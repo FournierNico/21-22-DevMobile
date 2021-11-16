@@ -1,15 +1,19 @@
 import React from 'react';
-import { View, TextInput, Button } from 'react-native';
+import { View, TextInput, Button, StyleSheet } from 'react-native';
+
+import Colors from '../definitions/Colors';
 
 const Search = () => {
 
   return (
-    <View>
+    <View style={styles.container}>
       <TextInput
-        placeholder="Nom du restaurant"
+        placeholder='Nom du restaurant'
+        style={styles.inputRestaurantName}
       />
       <Button
-        title="Rechercher"
+        title='Rechercher'
+        color={Colors.mainGreen}
         onPress={() => { console.log('Coucou'); }}
       />
     </View>
@@ -17,3 +21,13 @@ const Search = () => {
 };
 
 export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 16,
+  },
+});
