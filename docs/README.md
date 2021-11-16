@@ -617,3 +617,151 @@ export default Assets;
 Vous devez obtenir le résultat suivant :
 
 <img src="img/RestaurantListItem1.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+_RestaurantListItem.js_
+
+```
+import React from 'react';
+import { View, StyleSheet, Image, Text } from 'react-native';
+
+import Assets from '../definitions/Assets';
+import Colors from '../definitions/Colors';
+
+const RestaurantListItem = () => (
+  <View style={styles.container}>
+    <Image style={styles.thumbnail} />
+    <View style={styles.informationContainer}>
+      <Text style={styles.title}>
+        Nom du restaurant
+      </Text>
+      <Text style={[styles.data, styles.cuisine]}
+        numberOfLines={1}>
+        Type(s) de cuisine
+      </Text>
+      <View style={styles.statsContainer}>
+        <View style={styles.statContainer}>
+          <Image style={styles.icon} source={Assets.icons.rate} />
+          <Text style={[styles.data, styles.stat]}>
+            5.0
+          </Text>
+        </View>
+        <View style={styles.statContainer}>
+          <Image style={styles.icon} source={Assets.icons.review} />
+          <Text style={[styles.data, styles.stat]}>
+            1000
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+);
+
+export default RestaurantListItem;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  informationContainer: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  statContainer: {
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+  thumbnail: {
+    width: 128,
+    height: 128,
+    borderRadius: 12,
+    backgroundColor: Colors.mainGreen,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  data: {
+    fontSize: 16,
+  },
+  cuisine: {
+    fontStyle: 'italic',
+  },
+  icon: {
+    tintColor: Colors.mainGreen,
+  },
+  stat: {
+    marginLeft: 4,
+  },
+});
+
+```
+
+</details>
+
+Rien de nouveau ici  
+_numberOfLines={ 1 }_ pour la liste des types de cuisine permet de forcer le texte à s'afficher sur une ligne : si la ligne est plus longue, le texte sera coupé avec "..." affiché
+
+### Les propriétés (props) des composants
+
+Pour utiliser le destructuring, déclarer la liste des propriétés attendues dans le composant :
+
+```
+const Cat = ({name}) => {
+  return (
+    <View>
+      <Text>
+        Je suis {name} !
+      </Text>
+    </View>
+  );
+}
+
+const App = () => {
+  return (
+    <View>
+      <Cat name="Kiki"/>
+    </View>
+  );
+}
+```
+
+Possibilité de mettre une valeur par défaut à la propriété :
+
+```
+const Cat = ({name="Chichi"}) => {
+  ...
+
+const App = () => {
+  return (
+    <View>
+      <Cat />
+    </View>
+  );
+}
+```
+
+Dans une application, il est conseillé de déclarer le type des propriétés attendu pour chaque composant, s'il est obligatoire ou non... Pour cela on peut utiliser TypeScript ou PropTypes (plus simple à mettre en place dans une application déjà existante)
+
+### Exercice : utiliser des props dans le formulaire de test
+
+Dans la page de test _Test.js_, ajoutez un composant affichant le nom et le prénom d'un membre d'équipage. Pour le moment, passez la valeur comme propriété :
+
+```
+<Text style={styles.title}>
+  Composition de l'équipage
+</Text>
+<CrewMember firstName="John" lastName="Doe" />
+```
+
+Résultat attendu :
+
+<img src="img/test4.png" height="400" />

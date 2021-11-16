@@ -3,13 +3,14 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import Search from './src/components/Search';
+import RestaurantListItem from './src/components/RestaurantListItem';
 import Test from './src/components/Test';
 import Test2 from './src/components/Test2';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Test2 />
+      <RestaurantListItem />
       <StatusBar style="auto" />
     </View>
   );
