@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, TextInput, Text, Button, StyleSheet } from 'react-native';
 
 const CrewMember = ({ firstName, lastName }) => {
@@ -12,6 +12,9 @@ const CrewMember = ({ firstName, lastName }) => {
 }
 
 const Test = () => {
+
+  const [crewSize, setCrewSize] = useState(0);
+
   return (
     <View style={styles.container}>
       <View style={styles.subContainer}>
@@ -25,12 +28,12 @@ const Test = () => {
         <Button
           title='Ajouter'
           color='#005288'
-          onPress={() => { }}
+          onPress={() => { setCrewSize(crewSize + 1); }}
         />
       </View>
       <View style={styles.subContainer}>
         <Text style={styles.title}>
-          Composition de l'équipage
+          Composition de l'équipage ({crewSize})
         </Text>
         <CrewMember firstName="John" lastName="Doe" />
       </View>
