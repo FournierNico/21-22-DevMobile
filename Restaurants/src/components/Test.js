@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, Button, StyleSheet } from 'react-native';
+import { View, TextInput, Text, Button, StyleSheet, FlatList } from 'react-native';
 
 const CrewMember = ({ firstName, lastName }) => {
   return (
@@ -13,7 +13,15 @@ const CrewMember = ({ firstName, lastName }) => {
 
 const Test = () => {
 
-  const [crewSize, setCrewSize] = useState(0);
+  const [crews, setCrews] = useState([]);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const addCrewMember = () => {
+    if (firstName && lastName) {
+      setCrews([...crews, { id: Date.now().toString(), firstName: firstName, lastName: lastName }]);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -22,20 +30,27 @@ const Test = () => {
           Nouvelle recrue
       </Text>
         <TextInput placeholder='Entrez votre nom'
-          style={styles.form} />
+          style={styles.form}
+          onChangeText={(text) => setLastName(text)} />
         <TextInput placeholder='Entrez votre prénom'
-          style={[styles.form, { marginBottom: 12 }]} />
+          style={[styles.form, { marginBottom: 12 }]}
+          onChangeText={(text) => setFirstName(text)} />
         <Button
           title='Ajouter'
           color='#005288'
-          onPress={() => { setCrewSize(crewSize + 1); }}
+          onPress={addCrewMember}
         />
       </View>
       <View style={styles.subContainer}>
         <Text style={styles.title}>
-          Composition de l'équipage ({crewSize})
+          Composition de l'équipage ({crews.length})
         </Text>
-        <CrewMember firstName="John" lastName="Doe" />
+        <FlatList
+          data={crews}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <CrewMember firstName={item.firstName} lastName={item.lastName} />)}
+        />
       </View>
     </View>
   );

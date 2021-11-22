@@ -1006,3 +1006,161 @@ Pensez à regarder la documentation des composants pour vous aider. Pour l'ID, g
 Rendu attendu :
 
 <img src="img/test6.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+_Test.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Text, Button, StyleSheet, FlatList } from 'react-native';
+
+const CrewMember = ({ firstName, lastName }) => {
+  return (
+    <View>
+      <Text>
+        Membre d'équipage {firstName} {lastName} au rapport !
+      </Text>
+    </View>
+  );
+}
+
+const Test = () => {
+
+  const [crews, setCrews] = useState([]);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const addCrewMember = () => {
+    if (firstName && lastName) {
+      setCrews([...crews, { id: Date.now().toString(), firstName: firstName, lastName: lastName }]);
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.subContainer}>
+        <Text style={styles.title}>
+          Nouvelle recrue
+      </Text>
+        <TextInput placeholder='Entrez votre nom'
+          style={styles.form}
+          onChangeText={(text) => setLastName(text)} />
+        <TextInput placeholder='Entrez votre prénom'
+          style={[styles.form, { marginBottom: 12 }]}
+          onChangeText={(text) => setFirstName(text)} />
+        <Button
+          title='Ajouter'
+          color='#005288'
+          onPress={addCrewMember}
+        />
+      </View>
+      <View style={styles.subContainer}>
+        <Text style={styles.title}>
+          Composition de l'équipage ({crews.length})
+        </Text>
+        <FlatList
+          data={crews}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <CrewMember firstName={item.firstName} lastName={item.lastName} />)}
+        />
+      </View>
+    </View>
+  );
+}
+
+export default Test;
+
+const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: 12,
+  },
+  subContainer: {
+    paddingVertical: 16,
+  },
+  title: {
+    alignSelf: "center",
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  form: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+</details>
+
+### Créer la liste des restaurants
+
+Nous pouvons maintenant reprendre notre application de restaurants et appliquer ce que nous avons vu (props, state et liste) dans le composant _Search_. Pour le moment nous allons utiliser de fausses données (par la suite elle nous les récupèrerons d'une API)
+
+Créez le fichier _src/helpers/fakeRestaurants.js_ et copiez le contenu suivant :
+
+<details>
+<summary>Code</summary>
+
+```
+const fakeRestaurants = [
+  {
+    restaurant: {
+      id: 16774318,
+      name: 'La mama Pizza',
+      average_cost: 15,
+      user_rating: {
+        aggregate_rating: 3.7,
+        votes: 1063,
+      },
+      cuisines: 'Cafes, Italian',
+    },
+  },
+  {
+    restaurant: {
+      id: 16774319,
+      name: 'Le soleil du desert',
+      average_cost: 25,
+      user_rating: {
+        aggregate_rating: 4.9,
+        votes: 333,
+      },
+      cuisines: 'Middle Eastern, Moroccan',
+    },
+  },
+  {
+    restaurant: {
+      id: 16774320,
+      name: 'Le noodle',
+      average_cost: 10,
+      user_rating: {
+        aggregate_rating: 4.1,
+        votes: 1380,
+      },
+      cuisines: 'Asian, Ramen',
+    },
+  },
+];
+
+export default fakeRestaurants;
+
+```
+
+</details>
+
+Votre objectif est d'afficher cette liste de restaurants dans le composant Search. Je vous conseil de procéder en 2 étapes :
+
+- mettre en place la liste pour afficher le bon nombre d'objets _RestaurantListItem_
+- modifier le composant _RestaurantListItem_ pour lui passer les props afin d'afficher les bonnes données
+
+Dans le composant _RestaurantListItem_, je vous déconseil de déclarer chaque props ; passez plutôt l'objet contenant toutes les données :
+
+```
+const RestaurantListItem = ({ restaurantData}) => {
+```
+
+Rendu attendu :
+
+<img src="img/search2.png" height="400" />
