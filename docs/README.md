@@ -1164,3 +1164,269 @@ const RestaurantListItem = ({ restaurantData}) => {
 Rendu attendu :
 
 <img src="img/search2.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+
+import Colors from '../definitions/Colors';
+import fakeRestaurants from '../helpers/fakeRestaurants';
+
+const Search = () => {
+
+  const [restaurants, setRestaurants] = useState(fakeRestaurants);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={() => { console.log('Coucou'); }}
+        />
+      </View>
+      <FlatList
+        data={restaurants}
+        keyExtractor={(item) => item.restaurant.id.toString()}
+        renderItem={({ item }) => (
+          <RestaurantlistItem restaurantData={item.restaurant} />
+        )}
+      />
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+_RestaurantListItem.js_
+
+```
+import React from 'react';
+import { View, StyleSheet, Image, Text } from 'react-native';
+
+import Assets from '../definitions/Assets';
+import Colors from '../definitions/Colors';
+
+const RestaurantListItem = ({ restaurantData, restaurantData: { user_rating } }) => (
+  <View style={styles.container}>
+    <Image style={styles.thumbnail} />
+    <View style={styles.informationContainer}>
+      <Text style={styles.title}>
+        {restaurantData.name}
+      </Text>
+      <Text style={[styles.data, styles.cuisine]}
+        numberOfLines={1}>
+        {restaurantData.cuisines}
+      </Text>
+      <View style={styles.statsContainer}>
+        <View style={styles.statContainer}>
+          <Image style={styles.icon} source={Assets.icons.rate} />
+          <Text style={[styles.data, styles.stat]}>
+            {user_rating.aggregate_rating}
+          </Text>
+        </View>
+        <View style={styles.statContainer}>
+          <Image style={styles.icon} source={Assets.icons.review} />
+          <Text style={[styles.data, styles.stat]}>
+            {user_rating.votes}
+          </Text>
+        </View>
+      </View>
+    </View>
+  </View>
+);
+
+export default RestaurantListItem;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  informationContainer: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  statContainer: {
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+  thumbnail: {
+    width: 128,
+    height: 128,
+    borderRadius: 12,
+    backgroundColor: Colors.mainGreen,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  data: {
+    fontSize: 16,
+  },
+  cuisine: {
+    fontStyle: 'italic',
+  },
+  icon: {
+    tintColor: Colors.mainGreen,
+  },
+  stat: {
+    marginLeft: 4,
+  },
+});
+
+```
+
+</details>
+
+Afin d'alléger mon code dans le JSX, j'ai profité du destructuring pour assigner une variable supplémentaire contenant l'objet _user_rating_ pour le manipuler directement :
+
+```
+const RestaurantItem = ( {restaurant, restaurant : {user_rating}} ) => {
+  ...
+  <Text style={ styles.restaurantDataText }>
+              { user_rating.aggregate_rating }
+  </Text>
+  ...
+  <Text style={ styles.restaurantDataText }>
+              { user_rating.votes }
+  </Text>
+  ...
+```
+
+Au lieu de :
+
+```
+...
+<Text style={ styles.restaurantDataText }>
+            { restaurant.user_rating.aggregate_rating }
+</Text>
+...
+<Text style={ styles.restaurantDataText }>
+            { restaurant.user_rating.votes }
+</Text>
+```
+
+### Requêtes internet : fetch
+
+Exemple de call en utilisant l'api fetch :
+
+```
+const getMoviesFromApiAsync = async () => {
+  try {
+    const response = await fetch('https://reactnative.dev/movies.json');
+    const json = await response.json();
+    return json.movies;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+```
+
+Eléments importants :
+
+- fetch est asynchrone ; on doit attendre le retour de la fonction (utilisation des mots clés _await/async_)
+- pour traiter la réponse, il est plus simple de convertir en format json
+- bien penser à mettre le tout dans un _try/catch_ et gérer les erreurs
+
+Utilisation :
+
+```
+export default App = () => {
+  const [data, setData] = useState([]);
+
+  const loadData = async () => {
+    const res = await getMoviesFromApiAsync();
+    setData(res);
+    console.log(res);
+  }
+
+  return (
+    <View style={{ flex: 1, padding: 24 }}>
+      <Button
+        title="load"
+        onPress={loadData}/>
+      <FlatList
+        data={data}
+        keyExtractor={({ id }, index) => id}
+        renderItem={({ item }) => (
+          <Text>{item.title}, {item.releaseYear}</Text>) }
+        />
+    </View>
+  );
+};
+
+```
+
+L'API _fetch_ permet de gérer bien plus de paramètres pour les requêtes (la méthode, les headers...) en fonction des besoins. Regardez la documentation pour plus d'infos
+
+### Récupérer les restaurants depuis l'API Zomato
+
+Votre prochaine mission est de remplacer les fausses données des restaurants par un appel à l'API Zomato. On va utiliser la requête _/search_ sur la ville de Londres  
+Créez un fichier src/api/zomato.js\* pour centraliser les requêtes à l'API Zomato. Sauvegardez votre clé ainsi que l'ID de la ville de Londres :
+
+```
+const API_KEY = '';
+const LONDON_ID = 61;
+```
+
+A l'aide de la documentation, regardez comment construire la requête ; les paramètres attendu (et le header), le retour... afin de charger les restaurants de la ville de Londres. Créez la fonction dans le fichier _zomato.js_ et utilisez la dans le composant _Search_ lors d'un appui sur le bouton de recherche pour peupler la liste. Ne prennez pour l'instant pas en compte la pagination ou le texte de recherche
+
+Vous devriez obtenir un résultat semblable à ceci après un appui sur la recherche :
+
+<img src="img/search3.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+A venir :)
+
+</details>
+
+### Utiliser le texte de recherche
+
+Jusqu'à présent, la recherche des restaurants se fait sans paramètres. Vous avez tout à disposition pour ajouter cette fonctionnalité !
+
+Rendu attendu :
+
+<img src="img/search4.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+A venir :)
+
+</details>

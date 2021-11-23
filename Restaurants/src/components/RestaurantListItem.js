@@ -4,28 +4,28 @@ import { View, StyleSheet, Image, Text } from 'react-native';
 import Assets from '../definitions/Assets';
 import Colors from '../definitions/Colors';
 
-const RestaurantListItem = () => (
+const RestaurantListItem = ({ restaurantData, restaurantData: { user_rating } }) => (
   <View style={styles.container}>
     <Image style={styles.thumbnail} />
     <View style={styles.informationContainer}>
       <Text style={styles.title}>
-        Nom du restaurant
+        {restaurantData.name}
       </Text>
       <Text style={[styles.data, styles.cuisine]}
         numberOfLines={1}>
-        Type(s) de cuisine
+        {restaurantData.cuisines}
       </Text>
       <View style={styles.statsContainer}>
         <View style={styles.statContainer}>
           <Image style={styles.icon} source={Assets.icons.rate} />
           <Text style={[styles.data, styles.stat]}>
-            5.0
+            {user_rating.aggregate_rating}
           </Text>
         </View>
         <View style={styles.statContainer}>
           <Image style={styles.icon} source={Assets.icons.review} />
           <Text style={[styles.data, styles.stat]}>
-            1000
+            {user_rating.votes}
           </Text>
         </View>
       </View>
