@@ -11,15 +11,32 @@ const Search = () => {
 
   const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [nextOffset, setNextOffset] = useState(0);
+  const [isMoreResults, setIsMoreResults] = useState(true);
 
-  const searchRestaurants = async () => {
+  const requestRestaurants = async (prevRestaurants, offset) => {
     try {
-      const zomatoSearchResult = await getRestaurants(searchTerm);
-      setRestaurants(zomatoSearchResult.restaurants);
+      const zomatoSearchResult = await getRestaurants(searchTerm, offset);
+      setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
+      if (zomatoSearchResult.results_start + zomatoSearchResult.results_shown < zomatoSearchResult.results_found) {
+        setIsMoreResults(true);
+        setNextOffset(zomatoSearchResult.results_start + zomatoSearchResult.results_shown);
+      } else {
+        setIsMoreResults(false);
+      }
     } catch (error) {
-
     }
-  }
+  };
+
+  const searchRestaurants = () => {
+    requestRestaurants([], 0);
+  };
+
+  const loadMoreRestaurants = () => {
+    if (isMoreResults) {
+      requestRestaurants(restaurants, nextOffset);
+    };
+  };
 
   return (
     <View style={styles.container}>
@@ -41,6 +58,8 @@ const Search = () => {
         renderItem={({ item }) => (
           <RestaurantlistItem restaurantData={item.restaurant} />
         )}
+        onEndReached={loadMoreRestaurants}
+        onEndReachedThreshold={0.5}
       />
     </View>
   );

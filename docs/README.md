@@ -1660,8 +1660,239 @@ Vous êtes capable d'effectuer toutes ces étapes. N'oubliez pas que modifier le
 <details>
 <summary>Correction</summary>
 
-A venir :)
+_zomato.js_
+
+```
+const API_KEY = '';
+const LONDON_ID = '61';
+
+export async function getRestaurants(searchTerm = '', offset = 0) {
+  try {
+    const myHeaders = new Headers({ 'user-key': API_KEY });
+    const url = `https://developers.zomato.com/api/v2.1/search?entity_id=${LONDON_ID}&entity_type=city&start=${offset}&q=${searchTerm}`;
+    const response = await fetch(url, { headers: myHeaders });
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.log(`Error with function getRestaurants ${error.message}`);
+    throw error;
+  }
+};
+
+```
+
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = () => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [nextOffset, setNextOffset] = useState(0);
+  const [isMoreResults, setIsMoreResults] = useState(true);
+
+  const requestRestaurants = async (prevRestaurants, offset) => {
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm, offset);
+      setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
+      if (zomatoSearchResult.results_start + zomatoSearchResult.results_shown < zomatoSearchResult.results_found) {
+        setIsMoreResults(true);
+        setNextOffset(zomatoSearchResult.results_start + zomatoSearchResult.results_shown);
+      } else {
+        setIsMoreResults(false);
+      }
+    } catch (error) {
+    }
+  };
+
+  const searchRestaurants = () => {
+    requestRestaurants([], 0);
+  };
+
+  const loadMoreRestaurants = () => {
+    if (isMoreResults) {
+      requestRestaurants(restaurants, nextOffset);
+    };
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      <FlatList
+        data={restaurants}
+        keyExtractor={(item) => item.restaurant.id.toString()}
+        renderItem={({ item }) => (
+          <RestaurantlistItem restaurantData={item.restaurant} />
+        )}
+        onEndReached={loadMoreRestaurants}
+        onEndReachedThreshold={0.5}
+      />
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
 
 </details>
 
 _Limitation de l'API Zomato : en version gratuite, on ne peut pas obtenir les résultats après 100 éléments retournés. Si je commence ma requête à l'élément 101, j'obtiendrai un tableau vide en retour_
+
+### Ajout de quelques fonctionnalités
+
+#### Icone de chargement + Pull to resfresh
+
+Le retour du call à l'API n'est pas instantané. Pendant ces quelques secondes, il ne se passe rien à l'écran : ce n'est vraiment pas une bonne expérience utilisateur. Il faudrait que la liste affiche une icône de chargement pendant que l'API retourne le résultat. Nous pouvons également implémenter une fonctionnalité de _pull to resfresh_  
+La documentation de FlatList nous renseigne sur 2 props : _refreshing_ et _onRefresh_
+
+Commportement attendu :
+
+- lors d'une requête à l'API, la liste affiche une icone de chargement
+- si l'utilisateur utilise le _pull to refresh_, une nouvelle requête est émise (comme s'il appuyait sur le bouton)
+
+<img src="img/search5.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+A venir :)
+
+</details>
+
+#### Affichage en cas d'erreur lors du call API
+
+Actuellement nous ne traitons pas les erreurs lors du call API. Le comportement attendu est le suivant :
+
+- Si je n'ai pas d'erreur, comportement actuel (affichage de la liste de restaurants)
+- Si j'ai une erreur lors du call :
+  - remise à 0 des données
+  - la liste est remplacée par un autre composant affichant un message d'erreur
+
+La seule chose que vous ne savez pour l'instant pas faire, c'est un affichage conditionnel dans le JSX. Rien de bien compliqué :
+
+```
+{ isError ? (
+    // Afficher le composant erreur ici
+  ) : (
+    <FlatList
+      ...
+    />
+)}
+```
+
+Faite bien un composant séparé pour afficher l'erreur (_src/components/DisplayError.js_), pour qu'il puisse être réutilisé par la suite. Le mieux est même que ce composant prenne en props le message d'erreur à afficher. Pour tester le comportement, vous pouvez simplement toujours retourner une erreur dans la fonction qui effectue la requête
+
+Résultat attendu :
+
+<img src="img/error1.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+A venir :)
+
+</details>
+
+#### Améliorer le clavier
+
+2 fonctionnalités à ajouter sur le clavier :
+
+- lancer la recherche avec le bouton "OK"
+- fermer le clavier lorsqu'une recherche est lancée
+
+<details>
+<summary>Correction</summary>
+
+A venir :)
+
+</details>
+
+#### Affichage de l'image du restaurant
+
+Il est temps d'ajouter le vrai aperçu des restaurants. Chaque objet restaurant renvoyé par Zomato contient la propriété suivante :
+
+```
+"thumb": "https://b.zmtcdn.com/data/res_imagery/6114718_CHAIN_4a57080b96c0041bce378791a73d7395_c.JPG?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A"
+```
+
+La documentation du composant _Image_ indique qu'il est possible de charger la source depuis internet comme ceci :
+
+```
+<Image
+  source={{
+    uri: 'https://reactnative.dev/img/tiny_logo.png',
+  }}
+/>
+```
+
+Le problème est que les restaurants de Zomato ne contiennent pas tous de miniature. L'application ne va pas s'arrêter si URI est vide mais va retourner un warning. Il faudrait donc avoir le comportement suivant :
+
+- si une miniature existe, l'afficher
+- sinon, avoir une icone pour la remplacer
+
+Mettez en place ce comportement. Voici un indice pour gérer l'affichage :
+
+```
+  const getThumbnail = () => {
+    if (restaurantData.thumb) {
+      return (
+        ...
+      );
+    };
+    return (
+      ...
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      {getThumbnail()}
+      <View style={styles.informationContainer}>
+        ...
+```
+
+Résultat attendu :
+
+<img src="img/restaurantListItem2.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+A venir :)
+
+</details>
