@@ -4,11 +4,22 @@ import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
 import RestaurantlistItem from '../components/RestaurantListItem';
 
 import Colors from '../definitions/Colors';
-import fakeRestaurants from '../helpers/fakeRestaurants';
+
+import { getRestaurants } from '../api/zomato';
 
 const Search = () => {
 
-  const [restaurants, setRestaurants] = useState(fakeRestaurants);
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const searchRestaurants = async () => {
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm);
+      setRestaurants(zomatoSearchResult.restaurants);
+    } catch (error) {
+
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -16,11 +27,12 @@ const Search = () => {
         <TextInput
           placeholder='Nom du restaurant'
           style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
         />
         <Button
           title='Rechercher'
           color={Colors.mainGreen}
-          onPress={() => { console.log('Coucou'); }}
+          onPress={searchRestaurants}
         />
       </View>
       <FlatList

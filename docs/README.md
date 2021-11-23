@@ -1412,7 +1412,93 @@ Vous devriez obtenir un résultat semblable à ceci après un appui sur la reche
 <details>
 <summary>Correction</summary>
 
-A venir :)
+_zomato.js_
+
+```
+const API_KEY = '';
+const LONDON_ID = '61';
+
+export async function getRestaurants() {
+  try {
+    const myHeaders = new Headers({ 'user-key': API_KEY });
+    const url = `https://developers.zomato.com/api/v2.1/search?entity_id=${LONDON_ID}&entity_type=city`;
+    const response = await fetch(url, { headers: myHeaders });
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.log(`Error with function getRestaurants ${error.message}`);
+    throw error;
+  }
+};
+
+```
+
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = () => {
+
+  const [restaurants, setRestaurants] = useState([]);
+
+  const searchRestaurants = async () => {
+    try {
+      const zomatoSearchResult = await getRestaurants();
+      setRestaurants(zomatoSearchResult.restaurants);
+    } catch (error) {
+
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      <FlatList
+        data={restaurants}
+        keyExtractor={(item) => item.restaurant.id.toString()}
+        renderItem={({ item }) => (
+          <RestaurantlistItem restaurantData={item.restaurant} />
+        )}
+      />
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
 
 </details>
 
@@ -1427,6 +1513,155 @@ Rendu attendu :
 <details>
 <summary>Correction</summary>
 
+_zomato.js_
+
+```
+const API_KEY = '';
+const LONDON_ID = '61';
+
+export async function getRestaurants(searchTerm = '') {
+  try {
+    const myHeaders = new Headers({ 'user-key': API_KEY });
+    const url = `https://developers.zomato.com/api/v2.1/search?entity_id=${LONDON_ID}&entity_type=city&q=${searchTerm}`;
+    const response = await fetch(url, { headers: myHeaders });
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.log(`Error with function getRestaurants ${error.message}`);
+    throw error;
+  }
+};
+
+```
+
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = () => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const searchRestaurants = async () => {
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm);
+      setRestaurants(zomatoSearchResult.restaurants);
+    } catch (error) {
+
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      <FlatList
+        data={restaurants}
+        keyExtractor={(item) => item.restaurant.id.toString()}
+        renderItem={({ item }) => (
+          <RestaurantlistItem restaurantData={item.restaurant} />
+        )}
+      />
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+</details>
+
+### Récupérer plus de résultats
+
+L'API zomato renvoie au maximum 20 résultats à chaque requête. Il faudrait que lorsque l'utilisateur scroll sur le bas de la liste, s'il reste des résultats à charger l'application fasse une nouvelle requête à l'API
+
+Première étape, voir comment l'API Zomato gère la pagination. Dans la documentation, on trouve ceci : _(start) fetch results after offset_. Il est possible de spécifier à partir de quel élément on souhaite obtenir les résultats. Vous pourrez donc modifier la requête pour prendre en compte ce paramêtre  
+De plus, en observant le retour de la requête à _/search_, on peut observer les informations nécessaires à la pagination :
+
+```
+{
+  "results_found": 28692,
+  "results_start": 0,
+  "results_shown": 20,
+  "restaurants": [ ...
+  ]
+}
+```
+
+Seconde étape, détecter lorsque l'utilisateur arrive en bas de la liste pour charger d'avantage de résultats. La documentation de FlatList nous donne les deux infos suivantes :
+
+- **onEndReached** (function): call when the scroll position gets within onEndReachedThreshold of the rendered content
+- **onEndReachedThreshold** (number): How far from the end (in units of visible length of the list) the bottom edge of the list must be from the end of the content to trigger the onEndReached callback. Thus a value of 0.5 will trigger onEndReached when the end of the content is within half the visible length of the list
+
+Pour faire simple, la fonction définie dans la propriété _onEndReached_ sera appelée lorsque l'utilisateur attendra la fin de la liste - la taille d'écran défini dans _onEndReachedThreshold_ (en pratique, definissez cette valeur à 0.5)  
+On peut donc faire :
+
+```
+...
+_loadMoreRestaurants = () => {
+  console.log("End of the list");
+}
+...
+      <FlatList
+        data={ restaurants }
+        keyExtractor={ (item) => item.restaurant.id.toString() }
+        renderItem={ ({item}) => <RestaurantItem
+                                    restaurant={ item.restaurant }
+                                 /> }
+        onEndReached={ _loadMoreRestaurants }
+        onEndReachedThreshold={ 0.5 }
+      />
+```
+
+Lorsque vous arrivez en bas de la liste, vous devriez avoir un log dans la console
+
+On avance ! Il faudrait maintenant :
+
+- stocker les variables de pagination ; offset actuel et s'il y a plus de résultats (pour ne pas faire de call s'il n'y a plus de résultats)
+- initialiser / réinitialiser ces variables à chaque nouvelle recherche (lors de l'appui sur le bouton)
+- lorsque l'utilisateur arrive en fin de liste, si besoin effectuer un nouvel appel à l'API (et bien mettre à jour les variables)
+
+Vous êtes capable d'effectuer toutes ces étapes. N'oubliez pas que modifier le state est asynchrone, qu'il faut parfois ajouter les anciens résultats et parfois tout remettre à 0...
+
+<details>
+<summary>Correction</summary>
+
 A venir :)
 
 </details>
+
+_Limitation de l'API Zomato : en version gratuite, on ne peut pas obtenir les résultats après 100 éléments retournés. Si je commence ma requête à l'élément 101, j'obtiendrai un tableau vide en retour_
