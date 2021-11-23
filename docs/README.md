@@ -1790,7 +1790,100 @@ Commportement attendu :
 <details>
 <summary>Correction</summary>
 
-A venir :)
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = () => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [nextOffset, setNextOffset] = useState(0);
+  const [isMoreResults, setIsMoreResults] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const requestRestaurants = async (prevRestaurants, offset) => {
+    setIsRefreshing(true);
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm, offset);
+      setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
+      if (zomatoSearchResult.results_start + zomatoSearchResult.results_shown < zomatoSearchResult.results_found) {
+        setIsMoreResults(true);
+        setNextOffset(zomatoSearchResult.results_start + zomatoSearchResult.results_shown);
+      } else {
+        setIsMoreResults(false);
+      }
+    } catch (error) {
+    }
+    setIsRefreshing(false);
+  };
+
+  const searchRestaurants = () => {
+    requestRestaurants([], 0);
+  };
+
+  const loadMoreRestaurants = () => {
+    if (isMoreResults) {
+      requestRestaurants(restaurants, nextOffset);
+    };
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      <FlatList
+        data={restaurants}
+        keyExtractor={(item) => item.restaurant.id.toString()}
+        renderItem={({ item }) => (
+          <RestaurantlistItem restaurantData={item.restaurant} />
+        )}
+        onEndReached={loadMoreRestaurants}
+        onEndReachedThreshold={0.5}
+        refreshing={isRefreshing}
+        onRefresh={searchRestaurants}
+      />
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+*Petit bug de React Native : utiliser la propriété *refreshing* de la FlatList sans définir la propriété *onRefresh* ne fonctionne pas*
 
 </details>
 
@@ -1824,7 +1917,166 @@ Résultat attendu :
 <details>
 <summary>Correction</summary>
 
-A venir :)
+_Assets.js_
+
+```
+import iconRate from '../../assets/rate.png';
+import iconReview from '../../assets/review.png';
+import iconError from '../../assets/error.png';
+
+const Assets = {
+  icons: {
+    rate: iconRate,
+    review: iconReview,
+    error: iconError,
+  },
+};
+
+export default Assets;
+
+```
+
+_DisplayError.js_
+
+```
+import React from 'react';
+import { View, StyleSheet, Text, Image } from 'react-native';
+
+import Assets from '../definitions/Assets';
+import Colors from '../definitions/Colors';
+
+const DisplayError = ({ message = "Une erreur c'est produite" }) => (
+  <View style={styles.container}>
+    <Image source={Assets.icons.error} style={styles.icon} />
+    <Text style={styles.errorText}>
+      {message}
+    </Text>
+  </View>
+);
+
+export default DisplayError;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {
+    tintColor: Colors.mainGreen,
+  },
+  errorText: {
+    fontSize: 16,
+  },
+});
+
+```
+
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+import DisplayError from '../components/DisplayError';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = () => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [nextOffset, setNextOffset] = useState(0);
+  const [isMoreResults, setIsMoreResults] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const requestRestaurants = async (prevRestaurants, offset) => {
+    setIsRefreshing(true);
+    setIsError(false);
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm, offset);
+      setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
+      if (zomatoSearchResult.results_start + zomatoSearchResult.results_shown < zomatoSearchResult.results_found) {
+        setIsMoreResults(true);
+        setNextOffset(zomatoSearchResult.results_start + zomatoSearchResult.results_shown);
+      } else {
+        setIsMoreResults(false);
+      }
+    } catch (error) {
+      setIsError(true);
+      setRestaurants([]);
+      setIsMoreResults(true);
+      setNextOffset(0);
+    }
+    setIsRefreshing(false);
+  };
+
+  const searchRestaurants = () => {
+    requestRestaurants([], 0);
+  };
+
+  const loadMoreRestaurants = () => {
+    if (isMoreResults) {
+      requestRestaurants(restaurants, nextOffset);
+    };
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      {
+        isError ?
+          (<DisplayError message='Impossible de récupérer les restaurants' />) :
+          (<FlatList
+            data={restaurants}
+            keyExtractor={(item) => item.restaurant.id.toString()}
+            renderItem={({ item }) => (
+              <RestaurantlistItem restaurantData={item.restaurant} />
+            )}
+            onEndReached={loadMoreRestaurants}
+            onEndReachedThreshold={0.5}
+            refreshing={isRefreshing}
+            onRefresh={searchRestaurants}
+          />)
+      }
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+Pour faire les choses vraiment bien, on aurait du gérer le type d'erreur retourné pour afficher le bon message à l'utilisateur (service indisponible, erreur réseau etc...). Il est très important, surtout dans les applications mobile, d'avoir un feedback utilisateur le plus précis possible
 
 </details>
 
@@ -1838,7 +2090,111 @@ A venir :)
 <details>
 <summary>Correction</summary>
 
-A venir :)
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList, Keyboard } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+import DisplayError from '../components/DisplayError';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = () => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [nextOffset, setNextOffset] = useState(0);
+  const [isMoreResults, setIsMoreResults] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const requestRestaurants = async (prevRestaurants, offset) => {
+    setIsRefreshing(true);
+    setIsError(false);
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm, offset);
+      setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
+      if (zomatoSearchResult.results_start + zomatoSearchResult.results_shown < zomatoSearchResult.results_found) {
+        setIsMoreResults(true);
+        setNextOffset(zomatoSearchResult.results_start + zomatoSearchResult.results_shown);
+      } else {
+        setIsMoreResults(false);
+      }
+    } catch (error) {
+      setIsError(true);
+      setRestaurants([]);
+      setIsMoreResults(true);
+      setNextOffset(0);
+    }
+    setIsRefreshing(false);
+  };
+
+  const searchRestaurants = () => {
+    Keyboard.dismiss();
+    requestRestaurants([], 0);
+  };
+
+  const loadMoreRestaurants = () => {
+    if (isMoreResults) {
+      requestRestaurants(restaurants, nextOffset);
+    };
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
+          onSubmitEditing={searchRestaurants}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      {
+        isError ?
+          (<DisplayError message='Impossible de récupérer les restaurants' />) :
+          (<FlatList
+            data={restaurants}
+            keyExtractor={(item) => item.restaurant.id.toString()}
+            renderItem={({ item }) => (
+              <RestaurantlistItem restaurantData={item.restaurant} />
+            )}
+            onEndReached={loadMoreRestaurants}
+            onEndReachedThreshold={0.5}
+            refreshing={isRefreshing}
+            onRefresh={searchRestaurants}
+          />)
+      }
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
 
 </details>
 
@@ -1893,6 +2249,213 @@ Résultat attendu :
 <details>
 <summary>Correction</summary>
 
-A venir :)
+_Assets.js_
+
+```
+import iconRate from '../../assets/rate.png';
+import iconReview from '../../assets/review.png';
+import iconError from '../../assets/error.png';
+import iconMissingIMG from '../../assets/missingImage.png';
+
+const Assets = {
+  icons: {
+    rate: iconRate,
+    review: iconReview,
+    error: iconError,
+    missingIMG: iconMissingIMG,
+  },
+};
+
+export default Assets;
+
+```
+
+_RestaurantListItem.js_
+
+```
+import React from 'react';
+import { View, StyleSheet, Image, Text } from 'react-native';
+
+import Assets from '../definitions/Assets';
+import Colors from '../definitions/Colors';
+
+
+
+const RestaurantListItem = ({ restaurantData, restaurantData: { user_rating } }) => {
+
+  const getThumbnail = () => {
+    if (restaurantData.thumb) {
+      return (
+        <Image style={styles.thumbnail} source={{ uri: restaurantData.thumb }} />
+      );
+    };
+    return (
+      <View style={styles.noThumbnailContainer}>
+        <Image source={Assets.icons.missingIMG} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      {getThumbnail()}
+      <View style={styles.informationContainer}>
+        <Text style={styles.title}>
+          {restaurantData.name}
+        </Text>
+        <Text style={[styles.data, styles.cuisine]}
+          numberOfLines={1}>
+          {restaurantData.cuisines}
+        </Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.rate} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.aggregate_rating}
+            </Text>
+          </View>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.review} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.votes}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+export default RestaurantListItem;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  informationContainer: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  statContainer: {
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+  noThumbnailContainer: {
+    width: 128,
+    height: 128,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnail: {
+    width: 128,
+    height: 128,
+    borderRadius: 12,
+    backgroundColor: Colors.mainGreen,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  data: {
+    fontSize: 16,
+  },
+  cuisine: {
+    fontStyle: 'italic',
+  },
+  icon: {
+    tintColor: Colors.mainGreen,
+  },
+  stat: {
+    marginLeft: 4,
+  },
+});
+
+```
 
 </details>
+
+## Détails d'un restaurant
+
+### React navigation
+
+Installation :
+
+```
+npm install @react-navigation/native
+expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view
+npm install @react-navigation/stack
+```
+
+Créer un _StackNavigator_ :
+
+```
+const StackNavigator = createStackNavigator();
+
+function RootStack() {
+  return (
+    <StackNavigator.Navigator
+      initialRouteName="ScreenName1"
+    >
+      <StackNavigator.Screen
+        name="ScreenName1"
+        component={Screen}
+      />
+      ...
+    </StackNavigator.Navigator>
+  );
+}
+
+export default RootStack;
+```
+
+Mise en place :
+
+```
+export default function App() {
+  return (
+    <NavigationContainer>
+      <RootStack /> // composant importé
+      ...
+    </NavigationContainer>
+  );
+}
+```
+
+Navigation :
+
+```
+// Pour naviguer vers un autre écran, utilisez la prop 'navigate'
+navigation.navigate('screenName', {
+  paramName: paramValue,
+  ...
+});
+
+//Pour récupérer les paramètres, utilisez la prop 'route'
+const { paramName } = route.params;
+```
+
+### Naviguer de l'aperçu à la page d'un restaurant
+
+Votre prochain objectif est de mettre en place le comportement suivant : lorsque l'utilisateur clique sur un élément de la liste, il navigue vers une nouvelle page. Pour résumer, voici les étapes à effectuer :
+
+- Créez un nouveau composant _Restaurant_
+- Modifiez le composant _RestaurantListItem_ pour détecter un clic utilisateur
+- Mettez en place la structure de React Navigation
+- Branchez le tout pour avoir le comportement attendu
+
+La détection du clic sur un item d'une FlatList n'est pas natif. Voici comment réaliser cette partie :
+
+- Modifiez le composant _View_ global par le composant _ToucheableOpacity_ dans _RestaurantListItem_
+- Passez depuis la liste du composant _Search_ la fonction permettant la navigation à chaque item
+- Récupérez la fonction et éxécutez la lors d'un clic
+
+Résultat attendu :
+
+<img src="img/navigation1.png" height="400" />
+<img src="img/navigation2.png" height="400" />

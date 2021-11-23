@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+import { View, TextInput, Button, StyleSheet, FlatList, Keyboard } from 'react-native';
 
 import RestaurantlistItem from '../components/RestaurantListItem';
+import DisplayError from '../components/DisplayError';
 
 import Colors from '../definitions/Colors';
 
@@ -13,8 +14,12 @@ const Search = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [nextOffset, setNextOffset] = useState(0);
   const [isMoreResults, setIsMoreResults] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   const requestRestaurants = async (prevRestaurants, offset) => {
+    setIsRefreshing(true);
+    setIsError(false);
     try {
       const zomatoSearchResult = await getRestaurants(searchTerm, offset);
       setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
@@ -25,10 +30,16 @@ const Search = () => {
         setIsMoreResults(false);
       }
     } catch (error) {
+      setIsError(true);
+      setRestaurants([]);
+      setIsMoreResults(true);
+      setNextOffset(0);
     }
+    setIsRefreshing(false);
   };
 
   const searchRestaurants = () => {
+    Keyboard.dismiss();
     requestRestaurants([], 0);
   };
 
@@ -45,6 +56,7 @@ const Search = () => {
           placeholder='Nom du restaurant'
           style={styles.inputRestaurantName}
           onChangeText={(text) => setSearchTerm(text)}
+          onSubmitEditing={searchRestaurants}
         />
         <Button
           title='Rechercher'
@@ -52,15 +64,21 @@ const Search = () => {
           onPress={searchRestaurants}
         />
       </View>
-      <FlatList
-        data={restaurants}
-        keyExtractor={(item) => item.restaurant.id.toString()}
-        renderItem={({ item }) => (
-          <RestaurantlistItem restaurantData={item.restaurant} />
-        )}
-        onEndReached={loadMoreRestaurants}
-        onEndReachedThreshold={0.5}
-      />
+      {
+        isError ?
+          (<DisplayError message='Impossible de récupérer les restaurants' />) :
+          (<FlatList
+            data={restaurants}
+            keyExtractor={(item) => item.restaurant.id.toString()}
+            renderItem={({ item }) => (
+              <RestaurantlistItem restaurantData={item.restaurant} />
+            )}
+            onEndReached={loadMoreRestaurants}
+            onEndReachedThreshold={0.5}
+            refreshing={isRefreshing}
+            onRefresh={searchRestaurants}
+          />)
+      }
     </View>
   );
 };

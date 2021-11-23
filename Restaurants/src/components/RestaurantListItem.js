@@ -4,34 +4,52 @@ import { View, StyleSheet, Image, Text } from 'react-native';
 import Assets from '../definitions/Assets';
 import Colors from '../definitions/Colors';
 
-const RestaurantListItem = ({ restaurantData, restaurantData: { user_rating } }) => (
-  <View style={styles.container}>
-    <Image style={styles.thumbnail} />
-    <View style={styles.informationContainer}>
-      <Text style={styles.title}>
-        {restaurantData.name}
-      </Text>
-      <Text style={[styles.data, styles.cuisine]}
-        numberOfLines={1}>
-        {restaurantData.cuisines}
-      </Text>
-      <View style={styles.statsContainer}>
-        <View style={styles.statContainer}>
-          <Image style={styles.icon} source={Assets.icons.rate} />
-          <Text style={[styles.data, styles.stat]}>
-            {user_rating.aggregate_rating}
-          </Text>
-        </View>
-        <View style={styles.statContainer}>
-          <Image style={styles.icon} source={Assets.icons.review} />
-          <Text style={[styles.data, styles.stat]}>
-            {user_rating.votes}
-          </Text>
+
+
+const RestaurantListItem = ({ restaurantData, restaurantData: { user_rating } }) => {
+
+  const getThumbnail = () => {
+    if (restaurantData.thumb) {
+      return (
+        <Image style={styles.thumbnail} source={{ uri: restaurantData.thumb }} />
+      );
+    };
+    return (
+      <View style={styles.noThumbnailContainer}>
+        <Image source={Assets.icons.missingIMG} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      {getThumbnail()}
+      <View style={styles.informationContainer}>
+        <Text style={styles.title}>
+          {restaurantData.name}
+        </Text>
+        <Text style={[styles.data, styles.cuisine]}
+          numberOfLines={1}>
+          {restaurantData.cuisines}
+        </Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.rate} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.aggregate_rating}
+            </Text>
+          </View>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.review} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.votes}
+            </Text>
+          </View>
         </View>
       </View>
     </View>
-  </View>
-);
+  );
+};
 
 export default RestaurantListItem;
 
@@ -52,6 +70,12 @@ const styles = StyleSheet.create({
   statContainer: {
     flexDirection: 'row',
     marginRight: 8,
+  },
+  noThumbnailContainer: {
+    width: 128,
+    height: 128,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   thumbnail: {
     width: 128,

@@ -14,8 +14,6 @@ const LONDON_ID = '61';
   }
 };*/
 
-
-
 export async function getRestaurants(searchTerm = '', offset = 0) {
   try {
     let response;
@@ -36,7 +34,6 @@ export async function getRestaurants(searchTerm = '', offset = 0) {
         console.log("default");
         response = require('../helpers/Search-start-0.json');
     }
-    //const json = await response.json();
     return response;
   } catch (error) {
     console.log(`Error with function getRestaurants ${error.message}`);

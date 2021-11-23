@@ -1,0 +1,340 @@
+{
+  "R": {
+    "res_id": 6114829,
+    "is_grocery_store": false,
+    "has_menu_status": {
+      "delivery": -1,
+      "takeaway": -1
+    }
+  },
+  "apikey": "5ffb698e3d9a8ea8d51fb8847c216058",
+  "operational_status": "Operational",
+  "id": "6114829",
+  "name": "Duck & Waffle",
+  "url": "https://www.zomato.com/london/duck-waffle-city-of-london?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+  "location": {
+    "address": "Heron Tower, 110 Bishopsgate, City of London, London EC2N 4AY",
+    "locality": "Bishopsgate, City Of London",
+    "city": "London",
+    "city_id": 61,
+    "latitude": "51.5162840000",
+    "longitude": "-0.0809630000",
+    "zipcode": "EC2N 4AY",
+    "country_id": 215,
+    "locality_verbose": "Bishopsgate, City Of London, London"
+  },
+  "switch_to_order_menu": 0,
+  "cuisines": "British",
+  "timings": "24 Hours (Mon-Sun)",
+  "average_cost_for_two": 55,
+  "price_range": 3,
+  "currency": "£",
+  "highlights": [
+    "Cash",
+    "Lunch",
+    "Serves Alcohol",
+    "Credit Card",
+    "Breakfast",
+    "Dinner",
+    "Indoor Seating",
+    "Wifi",
+    "Brunch",
+    "Locally Sourced",
+    "Fullbar",
+    "Private Dining Area Available",
+    "Group Meal",
+    "City View"
+  ],
+  "offers": [],
+  "opentable_support": 0,
+  "is_zomato_book_res": 0,
+  "mezzo_provider": "OTHER",
+  "is_book_form_web_view": 0,
+  "book_form_web_view_url": "",
+  "book_again_url": "",
+  "thumb": "https://b.zmtcdn.com/data/pictures/9/6114829/c2ccece6ff9f183fc76b1ec10abdd073_featured_v2.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+  "user_rating": {
+    "aggregate_rating": "4.5",
+    "rating_text": "Excellent",
+    "rating_color": "3F7E00",
+    "rating_obj": {
+      "title": {
+        "text": "4.5"
+      },
+      "bg_color": {
+        "type": "lime",
+        "tint": "700"
+      }
+    },
+    "votes": 833
+  },
+  "all_reviews_count": 470,
+  "photos_url": "https://www.zomato.com/london/duck-waffle-city-of-london/photos?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1#tabtop",
+  "photo_count": 1113,
+  "photos": [
+    {
+      "photo": {
+        "id": "u_NTE0NDgyNjU1NT",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/df0/d98859779e975dafe2941731244bfdf0_1414503589.jpg?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/df0/d98859779e975dafe2941731244bfdf0_1414503589.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "Giulia Mulè",
+          "zomato_handle": "mondomulia",
+          "foodie_level": "Super Foodie",
+          "foodie_level_num": 8,
+          "foodie_color": "f58552",
+          "profile_url": "https://www.zomato.com/mondomulia?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/data/user_profile_pictures/9f4/72151cd03eaf775ed241fc356b1849f4.jpg?fit=around%7C100%3A100&crop=100%3A100%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/10145511"
+        },
+        "res_id": 6114829,
+        "caption": "",
+        "timestamp": 1414503626,
+        "friendly_time": "Oct 28, 2014",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_xMDA2Nzk0MTAyN",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/126/91364a3e35e5d1d967c7a43ee3ea8126_1500756162.jpg?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/126/91364a3e35e5d1d967c7a43ee3ea8126_1500756162.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "Frances Atkins",
+          "zomato_handle": "",
+          "foodie_level": "Foodie",
+          "foodie_level_num": 2,
+          "foodie_color": "ffd35d",
+          "profile_url": "https://www.zomato.com/users/frances-atkins-43977321?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/data/user_profile_pictures/292/b37cc401c2abce9fc9b5c45d0d1b5292.jpg?fit=around%7C100%3A100&crop=100%3A100%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/43977321"
+        },
+        "res_id": 6114829,
+        "caption": "",
+        "timestamp": 1500756170,
+        "friendly_time": "Jul 23, 2017",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_2ODQzOTk5ODQ2N",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/926/47fdf2e14fdf3acf6522032277afc926_1442423064.jpg?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/926/47fdf2e14fdf3acf6522032277afc926_1442423064.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "#Fatinside",
+          "zomato_handle": "hashtagfatinside",
+          "foodie_level": "Super Foodie",
+          "foodie_level_num": 8,
+          "foodie_color": "f58552",
+          "profile_url": "https://www.zomato.com/hashtagfatinside?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/data/user_profile_pictures/1d5/469c67a1742316fb7cb3d2c9ac79f1d5.jpg?fit=around%7C100%3A100&crop=100%3A100%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/31216395"
+        },
+        "res_id": 6114829,
+        "caption": "",
+        "timestamp": 1442423203,
+        "friendly_time": "Sep 16, 2015",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_MzU4MjI4NjQ2Nj",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/ef6/aad41b8d1e479d69b7934b8bca95def6_1416421546.JPG?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/ef6/aad41b8d1e479d69b7934b8bca95def6_1416421546.JPG?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "Hannah Caramelized Banana",
+          "zomato_handle": "hannahjallen",
+          "foodie_level": "Super Foodie",
+          "foodie_level_num": 9,
+          "foodie_color": "f58552",
+          "profile_url": "https://www.zomato.com/hannahjallen?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/images/user_avatars/wine_2x.png?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/8666951"
+        },
+        "res_id": 6114829,
+        "caption": "",
+        "timestamp": 1416421678,
+        "friendly_time": "Nov 19, 2014",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_zMTY2NjczMTcNT",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/27f/05c6b72a04afbdce4c35bcb55474627f_1458808788.jpg?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/27f/05c6b72a04afbdce4c35bcb55474627f_1458808788.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "Ana Sofia",
+          "zomato_handle": "",
+          "foodie_level": "Big Foodie",
+          "foodie_level_num": 6,
+          "foodie_color": "ffae4f",
+          "profile_url": "https://www.zomato.com/users/ana-sofia-27861124?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/data/user_profile_pictures/09b/8a0073402ee74ff6318be61fb0a0009b.jpg?fit=around%7C100%3A100&crop=100%3A100%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/27861124"
+        },
+        "res_id": 6114829,
+        "caption": "",
+        "timestamp": 1458808790,
+        "friendly_time": "Mar 24, 2016",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_OTA0Nzc3Njc4Nz",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/cfe/6e569e021e8a6f5305f47f3360f64cfe.jpg?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/cfe/6e569e021e8a6f5305f47f3360f64cfe.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "FoodiesontheProwl",
+          "zomato_handle": "",
+          "foodie_level": "Connoisseur",
+          "foodie_level_num": 13,
+          "foodie_color": "e95151",
+          "profile_url": "https://www.zomato.com/users/foodiesontheprowl-23062042?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/data/user_profile_pictures/05e/bb85bef637607a8081c50884e738205e.jpg?fit=around%7C100%3A100&crop=100%3A100%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/23062042"
+        },
+        "res_id": 6114829,
+        "caption": "Cherry tomatoes and goat cheese on bread ",
+        "timestamp": 1362234824,
+        "friendly_time": "Mar 02, 2013",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_MzA5MDc4NDcwNz",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/0b2/e092c049fbc78a240c2bb7096bd2e0b2.jpg?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/0b2/e092c049fbc78a240c2bb7096bd2e0b2.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "FoodiesontheProwl",
+          "zomato_handle": "",
+          "foodie_level": "Connoisseur",
+          "foodie_level_num": 13,
+          "foodie_color": "e95151",
+          "profile_url": "https://www.zomato.com/users/foodiesontheprowl-23062042?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/data/user_profile_pictures/05e/bb85bef637607a8081c50884e738205e.jpg?fit=around%7C100%3A100&crop=100%3A100%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/23062042"
+        },
+        "res_id": 6114829,
+        "caption": "Dining room",
+        "timestamp": 1349529276,
+        "friendly_time": "Oct 06, 2012",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_DYwMDE3MjM1MTY",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/e8e/ab599c21821c0fa15474987389978e8e_1488058650.jpg?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/e8e/ab599c21821c0fa15474987389978e8e_1488058650.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "Constança",
+          "zomato_handle": "",
+          "foodie_level": "Big Foodie",
+          "foodie_level_num": 7,
+          "foodie_color": "ffae4f",
+          "profile_url": "https://www.zomato.com/users/constana-9847041?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/images/user_avatars/cupcake.png?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/9847041"
+        },
+        "res_id": 6114829,
+        "caption": "",
+        "timestamp": 1488058650,
+        "friendly_time": "Feb 26, 2017",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_jU3OTQ1ODIyNDA",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/b46/e3b19c4b7cc5dbc3bb4321508452eb46_1458808411.jpg?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/b46/e3b19c4b7cc5dbc3bb4321508452eb46_1458808411.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "Ana Sofia",
+          "zomato_handle": "",
+          "foodie_level": "Big Foodie",
+          "foodie_level_num": 6,
+          "foodie_color": "ffae4f",
+          "profile_url": "https://www.zomato.com/users/ana-sofia-27861124?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/data/user_profile_pictures/09b/8a0073402ee74ff6318be61fb0a0009b.jpg?fit=around%7C100%3A100&crop=100%3A100%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/27861124"
+        },
+        "res_id": 6114829,
+        "caption": "",
+        "timestamp": 1458808413,
+        "friendly_time": "Mar 24, 2016",
+        "width": 640,
+        "height": 640
+      }
+    },
+    {
+      "photo": {
+        "id": "u_OTQyODM0Njk3MD",
+        "url": "https://b.zmtcdn.com/data/reviews_photos/1c5/c867f3359cd6beb8c8b9a5154778a1c5_1435981414.JPG?fit=around%7C640%3A640&crop=640%3A640%3B%2A%2C%2A",
+        "thumb_url": "https://b.zmtcdn.com/data/reviews_photos/1c5/c867f3359cd6beb8c8b9a5154778a1c5_1435981414.JPG?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+        "user": {
+          "name": "Amy @ My Dining Journey",
+          "zomato_handle": "mydiningjourney",
+          "foodie_level": "Connoisseur",
+          "foodie_level_num": 13,
+          "foodie_color": "e95151",
+          "profile_url": "https://www.zomato.com/mydiningjourney?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+          "profile_image": "https://b.zmtcdn.com/data/user_profile_pictures/625/a34491b172ac6d2f7afd533617652625.jpg?fit=around%7C100%3A100&crop=100%3A100%3B%2A%2C%2A",
+          "profile_deeplink": "zomato://u/1467288"
+        },
+        "res_id": 6114829,
+        "caption": "",
+        "timestamp": 1435981497,
+        "friendly_time": "Jul 04, 2015",
+        "width": 640,
+        "height": 640
+      }
+    }
+  ],
+  "menu_url": "https://www.zomato.com/london/duck-waffle-city-of-london/menu?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1&openSwipeBox=menu&showMinimal=1#tabtop",
+  "featured_image": "https://b.zmtcdn.com/data/pictures/9/6114829/c2ccece6ff9f183fc76b1ec10abdd073_featured_v2.jpg",
+  "medio_provider": false,
+  "has_online_delivery": 0,
+  "is_delivering_now": 0,
+  "store_type": "",
+  "include_bogo_offers": true,
+  "deeplink": "zomato://restaurant/6114829",
+  "is_table_reservation_supported": 0,
+  "has_table_booking": 0,
+  "events_url": "https://www.zomato.com/london/duck-waffle-city-of-london/events#tabtop?utm_source=api_basic_user&utm_medium=api&utm_campaign=v2.1",
+  "phone_numbers": "020 36407310",
+  "all_reviews": {
+    "reviews": [
+      {
+        "review": []
+      },
+      {
+        "review": []
+      },
+      {
+        "review": []
+      },
+      {
+        "review": []
+      },
+      {
+        "review": []
+      }
+    ]
+  },
+  "establishment": [
+    "Casual Dining"
+  ]
+}
