@@ -8,7 +8,7 @@ import Colors from '../definitions/Colors';
 
 import { getRestaurants } from '../api/zomato';
 
-const Search = () => {
+const Search = ({ navigation }) => {
 
   const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,6 +49,10 @@ const Search = () => {
     };
   };
 
+  const navigateToRestaurantDetails = () => {
+    navigation.navigate("ViewRestaurant");
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -71,7 +75,7 @@ const Search = () => {
             data={restaurants}
             keyExtractor={(item) => item.restaurant.id.toString()}
             renderItem={({ item }) => (
-              <RestaurantlistItem restaurantData={item.restaurant} />
+              <RestaurantlistItem restaurantData={item.restaurant} onClick={navigateToRestaurantDetails} />
             )}
             onEndReached={loadMoreRestaurants}
             onEndReachedThreshold={0.5}

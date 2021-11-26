@@ -2459,3 +2459,382 @@ Résultat attendu :
 
 <img src="img/navigation1.png" height="400" />
 <img src="img/navigation2.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+_Restaurant.js_
+
+```
+import React from 'react';
+import { View, StyleSheet, Text } from 'react-native';
+
+const Restaurant = () => {
+  return (
+    <View style={styles.container}>
+      <Text>
+        Je suis le composant restaurant
+      </Text>
+    </View>
+  )
+};
+
+export default Restaurant;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+```
+
+_RestaurantListItem.js_
+
+```
+import React from 'react';
+import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
+
+import Assets from '../definitions/Assets';
+import Colors from '../definitions/Colors';
+
+
+
+const RestaurantListItem = ({ onClick, restaurantData, restaurantData: { user_rating } }) => {
+
+  const getThumbnail = () => {
+    if (restaurantData.thumb) {
+      return (
+        <Image style={styles.thumbnail} source={{ uri: restaurantData.thumb }} />
+      );
+    };
+    return (
+      <View style={styles.noThumbnailContainer}>
+        <Image source={Assets.icons.missingIMG} />
+      </View>
+    );
+  };
+
+  return (
+    <TouchableOpacity style={styles.container} onPress={onClick}>
+      {getThumbnail()}
+      <View style={styles.informationContainer}>
+        <Text style={styles.title}>
+          {restaurantData.name}
+        </Text>
+        <Text style={[styles.data, styles.cuisine]}
+          numberOfLines={1}>
+          {restaurantData.cuisines}
+        </Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.rate} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.aggregate_rating}
+            </Text>
+          </View>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.review} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.votes}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export default RestaurantListItem;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  informationContainer: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  statContainer: {
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+  noThumbnailContainer: {
+    width: 128,
+    height: 128,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnail: {
+    width: 128,
+    height: 128,
+    borderRadius: 12,
+    backgroundColor: Colors.mainGreen,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  data: {
+    fontSize: 16,
+  },
+  cuisine: {
+    fontStyle: 'italic',
+  },
+  icon: {
+    tintColor: Colors.mainGreen,
+  },
+  stat: {
+    marginLeft: 4,
+  },
+});
+
+```
+
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList, Keyboard } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+import DisplayError from '../components/DisplayError';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = ({ navigation }) => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [nextOffset, setNextOffset] = useState(0);
+  const [isMoreResults, setIsMoreResults] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const requestRestaurants = async (prevRestaurants, offset) => {
+    setIsRefreshing(true);
+    setIsError(false);
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm, offset);
+      setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
+      if (zomatoSearchResult.results_start + zomatoSearchResult.results_shown < zomatoSearchResult.results_found) {
+        setIsMoreResults(true);
+        setNextOffset(zomatoSearchResult.results_start + zomatoSearchResult.results_shown);
+      } else {
+        setIsMoreResults(false);
+      }
+    } catch (error) {
+      setIsError(true);
+      setRestaurants([]);
+      setIsMoreResults(true);
+      setNextOffset(0);
+    }
+    setIsRefreshing(false);
+  };
+
+  const searchRestaurants = () => {
+    Keyboard.dismiss();
+    requestRestaurants([], 0);
+  };
+
+  const loadMoreRestaurants = () => {
+    if (isMoreResults) {
+      requestRestaurants(restaurants, nextOffset);
+    };
+  };
+
+  const navigateToRestaurantDetails = () => {
+    navigation.navigate("ViewRestaurant");
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
+          onSubmitEditing={searchRestaurants}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      {
+        isError ?
+          (<DisplayError message='Impossible de récupérer les restaurants' />) :
+          (<FlatList
+            data={restaurants}
+            keyExtractor={(item) => item.restaurant.id.toString()}
+            renderItem={({ item }) => (
+              <RestaurantlistItem restaurantData={item.restaurant} onClick={navigateToRestaurantDetails} />
+            )}
+            onEndReached={loadMoreRestaurants}
+            onEndReachedThreshold={0.5}
+            refreshing={isRefreshing}
+            onRefresh={searchRestaurants}
+          />)
+      }
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+_navigation/Navigation.js_
+
+```
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+
+import Search from '../components/Search';
+import Restaurant from '../components/Restaurant';
+
+const SearchNavigation = createStackNavigator();
+
+function RootStack() {
+  return (
+    <SearchNavigation.Navigator
+      initialRouteName="ViewSearch"
+    >
+      <SearchNavigation.Screen
+        name="ViewSearch"
+        component={Search}
+        options={{ title: 'Recherche' }}
+      />
+      <SearchNavigation.Screen
+        name="ViewRestaurant"
+        component={Restaurant}
+        options={{ title: 'Restaurant' }}
+      />
+    </SearchNavigation.Navigator>
+  );
+}
+
+export default RootStack;
+
+```
+
+_App.js_
+
+```
+import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import { StyleSheet, View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+
+import Navigation from './src/navigation/Navigation';
+import Search from './src/components/Search';
+import Test from './src/components/Test';
+import Test2 from './src/components/Test2';
+import RestaurantListItem from './src/components/RestaurantListItem'
+
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Navigation />
+      <StatusBar style="auto" />
+    </NavigationContainer>
+  );
+}
+
+```
+
+</details>
+
+### Effets de bord et cycle de vie
+
+Les effets de bord sont des évènements communs dans la vie d'un composant ; par exemple charger des données depuis internet afin de les afficher, "s'abonner" à un service pour être notifié d'un changement de valeur, etc... Il existe 2 types d'effets de bord :
+
+- sans nettoyage ; par exemple au chargement du composant il doit faire une requête pour récupérer des données à afficher
+- avec nettoyage ; par exemple au chargement du composant ce dernier doit s'abonner à un service pour être prévenu d'un changement, et lorsque le composant se détruit il doit se désabonner du service
+
+Avec les Hooks de React, les effets de bord sont gérés via la fonction _useEffect_
+
+Exemple sans nettoyage ; à chaque fois que le composant va s'afficher (donc à _l'initialisation (montage)_ ainsi qu'à chaque refresh) le code sera exécuté :
+
+```
+useEffect(() => {
+  // Met à jour le titre du document via l’API du navigateur
+  document.title = `Vous avez cliqué ${count} fois`;
+});
+```
+
+Exemple avec nettoyage ; à chaque fois que le composant va s'afficher (donc à l'initialisation ainsi qu'à chaque refresh) le code sera exécuté + au moment ou le composant va se _détruire (démonter)_ la fonction du _return_ sera exécutée :
+
+```
+useEffect(() => {
+  // Code classique du useEffect
+  function handleStatusChange(status) {
+    setIsOnline(status.isOnline);
+  }
+  ChatAPI.subscribeToFriendStatus(props.friend.id, handleStatusChange);
+  // Indique comment nettoyer l'effet :
+  return function cleanup() { // Le nom de la fonction n'a pas d'importance
+    ChatAPI.unsubscribeFromFriendStatus(props.friend.id, handleStatusChange);
+  };
+});
+```
+
+Comme nous venons de le voir, _useEffect_ est appelé à chaque fois que le composant se met à jour. Un comportement standard est de ne vouloir exécuter la fonction que lorsqu'une ou plusieurs données changent :
+
+```
+useEffect(() => {
+  document.title = `Vous avez cliqué ${count} fois`;
+}, [count]); // N’exécute l’effet que si count a changé
+```
+
+Un dérivé très utilisé et de vouloir effectuer un _useEffect_ uniquement à l'initialisation du composant :
+
+```
+useEffect(() => {
+  document.title = loadData();
+}, []); // N’exécute l’effet que lors de l'initialisation
+```
+
+### Récupérer les données du restaurant
+
+L'objectif de la nouvelle page est d'afficher les informations d'un restaurant ; il faut donc charger ses données depuis l'API (pour l'instant uniquement son nom). Voici le comportement à mettre en place ainsi que des indications :
+
+- Ajoutez une fonction dans _zomato.js_ prennant en paramètre l'id d'un restaurant pour récupérer les données (regardez la doc)
+- Passez l'id du restaurant en paramètre de la navigation à la page des détails du restaurant
+- Mettez en place le chargement de la page du restaurant :
+  - Affichez un loader à l'arrivé sur la page (composant _ActivityIndicator_)
+  - Un fois que le composant React est initialisé, faire un call API pour récupérer les données du restaurant (via _UseEffect_)
+  - Une fois les données du restaurant récupérées, arrétez d'afficher le loader et affichez le nom du restaurant (ou le composant d'erreur si échec du call)
+
+Rappel : pourquoi ne pas mettre le call API dans le _useState_ ?  
+Le retour de l'API est incertain ; nous ne savons pas quand il va revenir ni même s'il va revenir. De plus il faut être certain que le composant a fini de s'initialiser avant de vouloir le modifier
+
+Résultat attendu :
+
+<img src="img/restaurant1.png" height="400" />
+<img src="img/restaurant2.png" height="400" />

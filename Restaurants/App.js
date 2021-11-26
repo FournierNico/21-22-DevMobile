@@ -1,25 +1,19 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
 
+import Navigation from './src/navigation/Navigation';
 import Search from './src/components/Search';
-import RestaurantListItem from './src/components/RestaurantListItem';
 import Test from './src/components/Test';
 import Test2 from './src/components/Test2';
+import RestaurantListItem from './src/components/RestaurantListItem'
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Search />
+    <NavigationContainer>
+      <Navigation />
       <StatusBar style="auto" />
-    </View>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    marginTop: 24, // correction barre d'état
-  },
-});

@@ -1,12 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, Image, Text } from 'react-native';
+import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
 
 import Assets from '../definitions/Assets';
 import Colors from '../definitions/Colors';
 
 
 
-const RestaurantListItem = ({ restaurantData, restaurantData: { user_rating } }) => {
+const RestaurantListItem = ({ onClick, restaurantData, restaurantData: { user_rating } }) => {
 
   const getThumbnail = () => {
     if (restaurantData.thumb) {
@@ -19,10 +19,10 @@ const RestaurantListItem = ({ restaurantData, restaurantData: { user_rating } })
         <Image source={Assets.icons.missingIMG} />
       </View>
     );
-  }
+  };
 
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onClick}>
       {getThumbnail()}
       <View style={styles.informationContainer}>
         <Text style={styles.title}>
@@ -47,7 +47,7 @@ const RestaurantListItem = ({ restaurantData, restaurantData: { user_rating } })
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
