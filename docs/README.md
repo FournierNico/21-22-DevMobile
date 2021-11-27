@@ -2838,3 +2838,318 @@ Résultat attendu :
 
 <img src="img/restaurant1.png" height="400" />
 <img src="img/restaurant2.png" height="400" />
+
+<details>
+<summary>Correction</summary>
+
+_zomato.js_
+
+```
+...
+
+export async function getRestaurantDetails(restaurantID) {
+  try {
+    const myHeaders = new Headers({ 'user-key': API_KEY });
+    const url = `https://developers.zomato.com/api/v2.1/restaurant?res_id=${restaurantID}`;
+    const response = await fetch(url, { headers: myHeaders });
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.log(`Error with function getRestaurantDetails ${error.message}`);
+    throw error;
+  }
+};
+```
+
+_RestaurantListItem.js_
+
+```
+import React from 'react';
+import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
+
+import Assets from '../definitions/Assets';
+import Colors from '../definitions/Colors';
+
+
+
+const RestaurantListItem = ({ onClick, restaurantData, restaurantData: { user_rating } }) => {
+
+  const getThumbnail = () => {
+    if (restaurantData.thumb) {
+      return (
+        <Image style={styles.thumbnail} source={{ uri: restaurantData.thumb }} />
+      );
+    };
+    return (
+      <View style={styles.noThumbnailContainer}>
+        <Image source={Assets.icons.missingIMG} />
+      </View>
+    );
+  };
+
+  return (
+    <TouchableOpacity style={styles.container}
+      onPress={() => { onClick(restaurantData.id) }}>
+      {getThumbnail()}
+      <View style={styles.informationContainer}>
+        <Text style={styles.title}>
+          {restaurantData.name}
+        </Text>
+        <Text style={[styles.data, styles.cuisine]}
+          numberOfLines={1}>
+          {restaurantData.cuisines}
+        </Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.rate} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.aggregate_rating}
+            </Text>
+          </View>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.review} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.votes}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export default RestaurantListItem;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  informationContainer: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'center',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  statContainer: {
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+  noThumbnailContainer: {
+    width: 128,
+    height: 128,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnail: {
+    width: 128,
+    height: 128,
+    borderRadius: 12,
+    backgroundColor: Colors.mainGreen,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  data: {
+    fontSize: 16,
+  },
+  cuisine: {
+    fontStyle: 'italic',
+  },
+  icon: {
+    tintColor: Colors.mainGreen,
+  },
+  stat: {
+    marginLeft: 4,
+  },
+});
+
+```
+
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList, Keyboard } from 'react-native';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+import DisplayError from '../components/DisplayError';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = ({ navigation }) => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [nextOffset, setNextOffset] = useState(0);
+  const [isMoreResults, setIsMoreResults] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const requestRestaurants = async (prevRestaurants, offset) => {
+    setIsRefreshing(true);
+    setIsError(false);
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm, offset);
+      setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
+      if (zomatoSearchResult.results_start + zomatoSearchResult.results_shown < zomatoSearchResult.results_found) {
+        setIsMoreResults(true);
+        setNextOffset(zomatoSearchResult.results_start + zomatoSearchResult.results_shown);
+      } else {
+        setIsMoreResults(false);
+      }
+    } catch (error) {
+      setIsError(true);
+      setRestaurants([]);
+      setIsMoreResults(true);
+      setNextOffset(0);
+    }
+    setIsRefreshing(false);
+  };
+
+  const searchRestaurants = () => {
+    Keyboard.dismiss();
+    requestRestaurants([], 0);
+  };
+
+  const loadMoreRestaurants = () => {
+    if (isMoreResults) {
+      requestRestaurants(restaurants, nextOffset);
+    };
+  };
+
+  const navigateToRestaurantDetails = (restaurantID) => {
+    navigation.navigate("ViewRestaurant", { restaurantID });
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
+          onSubmitEditing={searchRestaurants}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      {
+        isError ?
+          (<DisplayError message='Impossible de récupérer les restaurants' />) :
+          (<FlatList
+            data={restaurants}
+            keyExtractor={(item) => item.restaurant.id.toString()}
+            renderItem={({ item }) => (
+              <RestaurantlistItem restaurantData={item.restaurant} onClick={navigateToRestaurantDetails} />
+            )}
+            onEndReached={loadMoreRestaurants}
+            onEndReachedThreshold={0.5}
+            refreshing={isRefreshing}
+            onRefresh={searchRestaurants}
+          />)
+      }
+    </View>
+  );
+};
+
+export default Search;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+_Restaurant.js_
+
+```
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import DisplayError from '../components/DisplayError';
+
+import { getRestaurantDetails } from '../api/zomato';
+
+const Restaurant = ({ route }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [restaurant, setRestaurant] = useState(null);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    requestRestaurant();
+  }, []); // Uniquement à l'initialisation
+
+  // Pourrait être directement déclarée dans useEffect
+  const requestRestaurant = async () => {
+    try {
+      const zomatoRestaurantResult = await getRestaurantDetails(route.params.restaurantID);
+      setRestaurant(zomatoRestaurantResult);
+      setIsLoading(false);
+    } catch (error) {
+      setIsError(true);
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      {isError ?
+        (<DisplayError message='Impossible de récupérer les données du restaurants' />) :
+        (isLoading ?
+          (<View style={styles.containerLoading}>
+            <ActivityIndicator size="large" />
+          </View>) :
+          (<Text>
+            Je suis le restaurant {restaurant.name}
+          </Text>)
+        )}
+    </View>
+  );
+};
+
+export default Restaurant;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  containerLoading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
+});
+
+```
+
+</details>
+
+### Réalisation de l'interface
+
+Maintenant que la logique de la page du restaurant est en place, il ne reste plus qu'à réaliser l'interface. Comme souvent, cette étape n'est pas la plus compliquée mais prend pas mal de temps ; c'est un bon exercice pour appliquer ce que vous avez appris. Petites nouveautés ici :
+
+- comment afficher la liste des horaires d'ouverture ?
+- comment faire si le contenu ne tient pas sur un écran en hauteur ?
+- comment afficher la bonne couleur pour la note (renvoyée par l'API) ?
+
+Résultat attendu :
+
+<img src="img/restaurant3.png" height="400" />

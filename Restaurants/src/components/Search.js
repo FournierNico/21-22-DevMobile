@@ -49,8 +49,8 @@ const Search = ({ navigation }) => {
     };
   };
 
-  const navigateToRestaurantDetails = () => {
-    navigation.navigate("ViewRestaurant");
+  const navigateToRestaurantDetails = (restaurantID) => {
+    navigation.navigate("ViewRestaurant", { restaurantID });
   };
 
   return (

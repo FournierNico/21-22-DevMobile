@@ -40,3 +40,16 @@ export async function getRestaurants(searchTerm = '', offset = 0) {
     throw error;
   }
 };
+
+export async function getRestaurantDetails(restaurantID) {
+  try {
+    const myHeaders = new Headers({ 'user-key': API_KEY });
+    const url = `https://developers.zomato.com/api/v2.1/restaurant?res_id=${restaurantID}`;
+    const response = await fetch(url, { headers: myHeaders });
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.log(`Error with function getRestaurantDetails ${error.message}`);
+    throw error;
+  }
+};

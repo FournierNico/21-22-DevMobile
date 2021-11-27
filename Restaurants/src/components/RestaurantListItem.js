@@ -22,7 +22,8 @@ const RestaurantListItem = ({ onClick, restaurantData, restaurantData: { user_ra
   };
 
   return (
-    <TouchableOpacity style={styles.container} onPress={onClick}>
+    <TouchableOpacity style={styles.container}
+      onPress={() => { onClick(restaurantData.id) }}>
       {getThumbnail()}
       <View style={styles.informationContainer}>
         <Text style={styles.title}>
