@@ -1,19 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { Provider } from 'react-redux';
 
 import Navigation from './src/navigation/Navigation';
-import Search from './src/components/Search';
-import Test from './src/components/Test';
-import Test2 from './src/components/Test2';
-import RestaurantListItem from './src/components/RestaurantListItem'
+import Store from './src/store/config';
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Navigation />
-      <StatusBar style="auto" />
-    </NavigationContainer>
+    <Provider store={Store}>
+      <NavigationContainer>
+        <Navigation />
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </Provider>
   );
 }

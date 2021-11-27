@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator, ScrollView, Image } from 'react-native';
+import { View, StyleSheet, Text, ActivityIndicator, ScrollView, Image, Button } from 'react-native';
+import { connect } from 'react-redux';
+
 import DisplayError from '../components/DisplayError';
 
 import { getRestaurantDetails } from '../api/zomato';
@@ -7,7 +9,7 @@ import { getRestaurantDetails } from '../api/zomato';
 import Colors from '../definitions/Colors';
 import Assets from '../definitions/Assets';
 
-const Restaurant = ({ route }) => {
+const Restaurant = ({ route, favRestaurants, dispatch }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [restaurant, setRestaurant] = useState(null);
   const [isError, setIsError] = useState(false);
@@ -25,6 +27,17 @@ const Restaurant = ({ route }) => {
     } catch (error) {
       setIsError(true);
     }
+  }
+
+  // On pourrait définir les actions dans un fichier à part
+  const saveRestaurant = async () => {
+    const action = { type: 'SAVE_RESTAURANT', value: route.params.restaurantID };
+    dispatch(action);
+  }
+
+  const unsaveRestaurant = async () => {
+    const action = { type: 'UNSAVE_RESTAURANT', value: route.params.restaurantID };
+    dispatch(action);
   }
 
   const displayRestaurantImage = () => {
@@ -48,9 +61,30 @@ const Restaurant = ({ route }) => {
       timingsJSX.push(<Text key={index} style={styles.textContent}>{timing}</Text>)
     });
     return (
-      <View>
+      <View style={{ marginBottom: 16, }}>
         {timingsJSX}
       </View>
+    );
+  }
+
+  const displaySaveRestaurant = () => {
+    if (favRestaurants.findIndex(i => i === route.params.restaurantID) !== -1) {
+      // Le restaurant est sauvegardé
+      return (
+        <Button
+          title='Retirer des favoris'
+          color={Colors.mainGreen}
+          onPress={unsaveRestaurant}
+        />
+      );
+    }
+    // Le restaurant n'est pas sauvegardé
+    return (
+      <Button
+        title='Ajouter aux favoris'
+        color={Colors.mainGreen}
+        onPress={saveRestaurant}
+      />
     );
   }
 
@@ -112,6 +146,7 @@ const Restaurant = ({ route }) => {
                 Horaires d'ouverture
               </Text>
               {displayTimings()}
+              {displaySaveRestaurant()}
             </View>
           </ScrollView>)
         )}
@@ -119,7 +154,13 @@ const Restaurant = ({ route }) => {
   );
 };
 
-export default Restaurant;
+const mapStateToProps = (state) => {
+  return {
+    favRestaurants: state.favRestaurantsID
+  }
+}
+
+export default connect(mapStateToProps)(Restaurant);
 
 const styles = StyleSheet.create({
   container: {

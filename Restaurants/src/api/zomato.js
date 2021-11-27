@@ -1,4 +1,4 @@
-const API_KEY = '';
+const API_KEY = '3f0044d2eec0f6bf7b7606abba312305';
 const LONDON_ID = '61';
 
 /*export async function getRestaurants(searchTerm = '', offset = 0) {
