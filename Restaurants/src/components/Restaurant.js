@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, ActivityIndicator, ScrollView, Image, Button } from 'react-native';
 import { connect } from 'react-redux';
+import Toast from 'react-native-root-toast';
 
 import DisplayError from '../components/DisplayError';
 
@@ -33,11 +34,17 @@ const Restaurant = ({ route, favRestaurants, dispatch }) => {
   const saveRestaurant = async () => {
     const action = { type: 'SAVE_RESTAURANT', value: route.params.restaurantID };
     dispatch(action);
+    let toast = Toast.show('Restaurant ajouté aux favoris', {
+      duration: Toast.durations.LONG,
+    });
   }
 
   const unsaveRestaurant = async () => {
     const action = { type: 'UNSAVE_RESTAURANT', value: route.params.restaurantID };
     dispatch(action);
+    let toast = Toast.show('Restaurant retiré des favoris', {
+      duration: Toast.durations.LONG,
+    });
   }
 
   const displayRestaurantImage = () => {

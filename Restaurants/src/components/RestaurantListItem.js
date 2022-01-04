@@ -6,7 +6,7 @@ import Colors from '../definitions/Colors';
 
 
 
-const RestaurantListItem = ({ onClick, restaurantData, restaurantData: { user_rating } }) => {
+const RestaurantListItem = ({ onClick, restaurantData, restaurantData: { user_rating }, isFav = false }) => {
 
   const getThumbnail = () => {
     if (restaurantData.thumb) {
@@ -26,9 +26,15 @@ const RestaurantListItem = ({ onClick, restaurantData, restaurantData: { user_ra
       onPress={() => { onClick(restaurantData.id) }}>
       {getThumbnail()}
       <View style={styles.informationContainer}>
-        <Text style={styles.title}>
-          {restaurantData.name}
-        </Text>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>
+            {restaurantData.name}
+          </Text>
+          {isFav ?
+            (<Image style={[styles.icon, { marginLeft: 'auto' }]} source={Assets.icons.favFull} />) :
+            (null)
+          }
+        </View>
         <Text style={[styles.data, styles.cuisine]}
           numberOfLines={1}>
           {restaurantData.cuisines}
@@ -63,6 +69,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 12,
     justifyContent: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'row',
   },
   statsContainer: {
     flexDirection: 'row',

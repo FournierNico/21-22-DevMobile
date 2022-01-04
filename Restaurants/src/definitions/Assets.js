@@ -2,6 +2,8 @@ import iconRate from '../../assets/rate.png';
 import iconReview from '../../assets/review.png';
 import iconError from '../../assets/error.png';
 import iconMissingIMG from '../../assets/missingImage.png';
+import iconFavEmpty from '../../assets/favEmpty.png';
+import iconFavFull from '../../assets/favFull.png';
 
 const Assets = {
   icons: {
@@ -9,6 +11,8 @@ const Assets = {
     review: iconReview,
     error: iconError,
     missingIMG: iconMissingIMG,
+    favEmpty: iconFavEmpty,
+    favFull: iconFavFull,
   },
 };
 

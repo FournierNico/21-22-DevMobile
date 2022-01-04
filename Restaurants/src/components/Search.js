@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet, FlatList, Keyboard } from 'react-native';
+import { connect } from 'react-redux';
 
 import RestaurantlistItem from '../components/RestaurantListItem';
 import DisplayError from '../components/DisplayError';
@@ -8,7 +9,7 @@ import Colors from '../definitions/Colors';
 
 import { getRestaurants } from '../api/zomato';
 
-const Search = ({ navigation }) => {
+const Search = ({ navigation, favRestaurants }) => {
 
   const [restaurants, setRestaurants] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,6 +54,13 @@ const Search = ({ navigation }) => {
     navigation.navigate("ViewRestaurant", { restaurantID });
   };
 
+  const amIaFavRestaurant = (restaurantID) => {
+    if (favRestaurants.findIndex(i => i === restaurantID) !== -1) {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
@@ -73,9 +81,13 @@ const Search = ({ navigation }) => {
           (<DisplayError message='Impossible de récupérer les restaurants' />) :
           (<FlatList
             data={restaurants}
+            extraData={favRestaurants}
             keyExtractor={(item) => item.restaurant.id.toString()}
             renderItem={({ item }) => (
-              <RestaurantlistItem restaurantData={item.restaurant} onClick={navigateToRestaurantDetails} />
+              <RestaurantlistItem
+                restaurantData={item.restaurant}
+                onClick={navigateToRestaurantDetails}
+                isFav={amIaFavRestaurant(item.restaurant.id)} />
             )}
             onEndReached={loadMoreRestaurants}
             onEndReachedThreshold={0.5}
@@ -87,7 +99,13 @@ const Search = ({ navigation }) => {
   );
 };
 
-export default Search;
+const mapStateToProps = (state) => {
+  return {
+    favRestaurants: state.favRestaurantsID
+  }
+}
+
+export default connect(mapStateToProps)(Search);
 
 const styles = StyleSheet.create({
   container: {

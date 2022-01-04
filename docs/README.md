@@ -3802,7 +3802,62 @@ C'est toujours une bonne idée de donner du feedback à l'utilisateur sur ses ac
 <details>
 <summary>Correction</summary>
 
-A venir :)
+```
+npm install react-native-root-toast
+```
+
+_App.js_
+
+```
+import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider } from 'react-redux';
+import { RootSiblingParent } from 'react-native-root-siblings';
+
+import Navigation from './src/navigation/Navigation';
+import Store from './src/store/config';
+
+export default function App() {
+  return (
+    <Provider store={Store}>
+      <RootSiblingParent>
+        <NavigationContainer>
+          <Navigation />
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </RootSiblingParent>
+    </Provider>
+  );
+}
+
+```
+
+_Restaurant.js_
+
+```
+...
+
+import Toast from 'react-native-root-toast';
+
+  const saveRestaurant = async () => {
+    const action = { type: 'SAVE_RESTAURANT', value: route.params.restaurantID };
+    dispatch(action);
+    let toast = Toast.show('Restaurant ajouté aux favoris', {
+      duration: Toast.durations.LONG,
+    });
+  }
+
+  const unsaveRestaurant = async () => {
+    const action = { type: 'UNSAVE_RESTAURANT', value: route.params.restaurantID };
+    dispatch(action);
+    let toast = Toast.show('Restaurant retiré des favoris', {
+      duration: Toast.durations.LONG,
+    });
+  }
+
+  ...
+```
 
 </details>
 
@@ -3820,6 +3875,325 @@ Résultat attendu :
 <details>
 <summary>Correction</summary>
 
-A venir :)
+_Assets.js_
+
+```
+import iconRate from '../../assets/rate.png';
+import iconReview from '../../assets/review.png';
+import iconError from '../../assets/error.png';
+import iconMissingIMG from '../../assets/missingImage.png';
+import iconFavEmpty from '../../assets/favEmpty.png';
+import iconFavFull from '../../assets/favFull.png';
+
+const Assets = {
+  icons: {
+    rate: iconRate,
+    review: iconReview,
+    error: iconError,
+    missingIMG: iconMissingIMG,
+    favEmpty: iconFavEmpty,
+    favFull: iconFavFull,
+  },
+};
+
+export default Assets;
+
+```
+
+_Search.js_
+
+```
+import React, { useState } from 'react';
+import { View, TextInput, Button, StyleSheet, FlatList, Keyboard } from 'react-native';
+import { connect } from 'react-redux';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+import DisplayError from '../components/DisplayError';
+
+import Colors from '../definitions/Colors';
+
+import { getRestaurants } from '../api/zomato';
+
+const Search = ({ navigation, favRestaurants }) => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [nextOffset, setNextOffset] = useState(0);
+  const [isMoreResults, setIsMoreResults] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const requestRestaurants = async (prevRestaurants, offset) => {
+    setIsRefreshing(true);
+    setIsError(false);
+    try {
+      const zomatoSearchResult = await getRestaurants(searchTerm, offset);
+      setRestaurants([...prevRestaurants, ...zomatoSearchResult.restaurants]);
+      if (zomatoSearchResult.results_start + zomatoSearchResult.results_shown < zomatoSearchResult.results_found) {
+        setIsMoreResults(true);
+        setNextOffset(zomatoSearchResult.results_start + zomatoSearchResult.results_shown);
+      } else {
+        setIsMoreResults(false);
+      }
+    } catch (error) {
+      setIsError(true);
+      setRestaurants([]);
+      setIsMoreResults(true);
+      setNextOffset(0);
+    }
+    setIsRefreshing(false);
+  };
+
+  const searchRestaurants = () => {
+    Keyboard.dismiss();
+    requestRestaurants([], 0);
+  };
+
+  const loadMoreRestaurants = () => {
+    if (isMoreResults) {
+      requestRestaurants(restaurants, nextOffset);
+    };
+  };
+
+  const navigateToRestaurantDetails = (restaurantID) => {
+    navigation.navigate("ViewRestaurant", { restaurantID });
+  };
+
+  const amIaFavRestaurant = (restaurantID) => {
+    if (favRestaurants.findIndex(i => i === restaurantID) !== -1) {
+      return true;
+    }
+    return false;
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.searchContainer}>
+        <TextInput
+          placeholder='Nom du restaurant'
+          style={styles.inputRestaurantName}
+          onChangeText={(text) => setSearchTerm(text)}
+          onSubmitEditing={searchRestaurants}
+        />
+        <Button
+          title='Rechercher'
+          color={Colors.mainGreen}
+          onPress={searchRestaurants}
+        />
+      </View>
+      {
+        isError ?
+          (<DisplayError message='Impossible de récupérer les restaurants' />) :
+          (<FlatList
+            data={restaurants}
+            extraData={favRestaurants}
+            keyExtractor={(item) => item.restaurant.id.toString()}
+            renderItem={({ item }) => (
+              <RestaurantlistItem
+                restaurantData={item.restaurant}
+                onClick={navigateToRestaurantDetails}
+                isFav={amIaFavRestaurant(item.restaurant.id)} />
+            )}
+            onEndReached={loadMoreRestaurants}
+            onEndReachedThreshold={0.5}
+            refreshing={isRefreshing}
+            onRefresh={searchRestaurants}
+          />)
+      }
+    </View>
+  );
+};
+
+const mapStateToProps = (state) => {
+  return {
+    favRestaurants: state.favRestaurantsID
+  }
+}
+
+export default connect(mapStateToProps)(Search);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  inputRestaurantName: {
+    marginBottom: 8,
+  },
+});
+
+```
+
+_RestaurantListItem.js_
+
+```
+import React from 'react';
+import { View, StyleSheet, Image, Text, TouchableOpacity } from 'react-native';
+
+import Assets from '../definitions/Assets';
+import Colors from '../definitions/Colors';
+
+
+
+const RestaurantListItem = ({ onClick, restaurantData, restaurantData: { user_rating }, isFav = false }) => {
+
+  const getThumbnail = () => {
+    if (restaurantData.thumb) {
+      return (
+        <Image style={styles.thumbnail} source={{ uri: restaurantData.thumb }} />
+      );
+    };
+    return (
+      <View style={styles.noThumbnailContainer}>
+        <Image source={Assets.icons.missingIMG} />
+      </View>
+    );
+  };
+
+  return (
+    <TouchableOpacity style={styles.container}
+      onPress={() => { onClick(restaurantData.id) }}>
+      {getThumbnail()}
+      <View style={styles.informationContainer}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>
+            {restaurantData.name}
+          </Text>
+          {isFav ?
+            (<Image style={[styles.icon, { marginLeft: 'auto' }]} source={Assets.icons.favFull} />) :
+            (null)
+          }
+        </View>
+        <Text style={[styles.data, styles.cuisine]}
+          numberOfLines={1}>
+          {restaurantData.cuisines}
+        </Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.rate} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.aggregate_rating}
+            </Text>
+          </View>
+          <View style={styles.statContainer}>
+            <Image style={styles.icon} source={Assets.icons.review} />
+            <Text style={[styles.data, styles.stat]}>
+              {user_rating.votes}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export default RestaurantListItem;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    paddingVertical: 8,
+  },
+  informationContainer: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    marginTop: 12,
+  },
+  statContainer: {
+    flexDirection: 'row',
+    marginRight: 8,
+  },
+  noThumbnailContainer: {
+    width: 128,
+    height: 128,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  thumbnail: {
+    width: 128,
+    height: 128,
+    borderRadius: 12,
+    backgroundColor: Colors.mainGreen,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  data: {
+    fontSize: 16,
+  },
+  cuisine: {
+    fontStyle: 'italic',
+  },
+  icon: {
+    tintColor: Colors.mainGreen,
+  },
+  stat: {
+    marginLeft: 4,
+  },
+});
+
+```
 
 </details>
+
+### Conserver les restaurants
+
+Vous avez du le remarquer, le store est réinitialisé après le redémarrage de l'application. Pour conserver l'état du store de Redux nous pouvons utiliser _redux-persist_. Il se base sur 2 concepts :
+
+- persist : sauvegarder l'information du store
+- rehydrate : récupérer l'information et l'injecter dans le store
+
+Installation (async-storage va nous permettre de stocker nos données ; on aurait pu utiliser le cache, les cookies etc... (sur le Web))
+
+```
+npm install redux-persist
+npm install @react-native-community/async-storage
+```
+
+Définition du store (_store/config.js_)
+
+```
+import { persistStore, persistReducer } from 'redux-persist';
+import AsyncStorage from '@react-native-community/async-storage';
+...
+
+const configPersist = {
+  key: 'root',
+  storage: AsyncStorage,
+};
+
+const reducerPersist = persistReducer(configPersist, reducer);
+
+export const Store = createStore(reducerPersist);
+export const Persistor = persistStore(Store);
+```
+
+Mise à disposition dans l'app (_App.js_)
+
+```
+import { PersistGate } from 'redux-persist/integration/react';
+import { Store, Persistor } from './src/store/config';
+...
+
+export default function App() {
+  return (
+    <Provider store={Store}>
+      <PersistGate loading={null} persistor={Persistor}>
+        ...
+```
+
+La prop _loading_ permet de définir un composant à afficher tant que le store n'est pas réhydraté (par exemple, un _ActivityIndicator_). De nombreuses options sont disponibles avec _redux-persist_, je vous encourage à regarder le dépot Git
+
+**Mettez en place redux-persist dans le projet**
