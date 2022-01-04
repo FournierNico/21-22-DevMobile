@@ -4273,3 +4273,360 @@ Résultat attendu :
 <img src="img/tab1.png" height="400" />
 <img src="img/tab2.png" height="400" />
 
+<details>
+<summary>Correction</summary>
+
+_Navigation.js_
+
+```
+import React from 'react';
+import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Image } from 'react-native';
+
+import Search from '../components/Search';
+import Restaurant from '../components/Restaurant';
+import FavRestaurants from '../components/FavRestaurants';
+
+import Colors from '../definitions/Colors';
+import Assets from '../definitions/Assets';
+
+const SearchNavigation = createStackNavigator();
+const FavNavigation = createStackNavigator();
+const TabNavigation = createBottomTabNavigator();
+
+function searchStackScreens() {
+  return (
+    <SearchNavigation.Navigator
+      initialRouteName="ViewSearch"
+    >
+      <SearchNavigation.Screen
+        name="ViewSearch"
+        component={Search}
+        options={{ title: 'Recherche' }}
+      />
+      <SearchNavigation.Screen
+        name="ViewRestaurant"
+        component={Restaurant}
+        options={{ title: 'Restaurant' }}
+      />
+    </SearchNavigation.Navigator>
+  )
+};
+
+function favStackScreens() {
+  return (
+    <FavNavigation.Navigator
+      initialRouteName="ViewFav"
+    >
+      <FavNavigation.Screen
+        name="ViewFav"
+        component={FavRestaurants}
+        options={{ title: 'Favoris' }}
+      />
+      <FavNavigation.Screen
+        name="ViewRestaurant"
+        component={Restaurant}
+        options={{ title: 'Restaurant' }}
+      />
+    </FavNavigation.Navigator>
+  )
+};
+
+function RootStack() {
+  return (
+    <TabNavigation.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: Colors.mainGreen,
+        headerShown: false
+      }}>
+      <TabNavigation.Screen
+        name="Recherche"
+        component={searchStackScreens}
+        options={() => ({
+          tabBarIcon: ({ color }) => {
+            return <Image source={Assets.icons.search} style={{ tintColor: color }} />;
+          }
+        })}
+      />
+      <TabNavigation.Screen
+        name="Favoris"
+        component={favStackScreens}
+        options={() => ({
+          tabBarIcon: ({ color }) => {
+            return <Image source={Assets.icons.favFull} style={{ tintColor: color }} />;
+          }
+        })}
+      />
+    </TabNavigation.Navigator>
+  );
+}
+
+export default RootStack;
+
+```
+
+_FavRestaurants.js_
+
+```
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, FlatList } from 'react-native';
+import { connect } from 'react-redux';
+
+import RestaurantlistItem from '../components/RestaurantListItem';
+import DisplayError from '../components/DisplayError';
+
+import { getRestaurantDetails } from '../api/zomato';
+
+const FavRestaurants = ({ navigation, favRestaurants }) => {
+
+  const [restaurants, setRestaurants] = useState([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    refreshFavRestaurants();
+  }, [favRestaurants]); // A chaque fois que les restaurants favoris changent
+
+  const refreshFavRestaurants = async () => {
+    setIsRefreshing(true);
+    setIsError(false);
+    let restaurants = [];
+    try {
+      for (const id of favRestaurants) {
+        const zomatoSearchResult = await getRestaurantDetails(id)
+        restaurants.push(zomatoSearchResult);
+      };
+      setRestaurants(restaurants);
+    } catch (error) {
+      setIsError(true);
+      setRestaurants([]);
+    }
+    setIsRefreshing(false);
+  };
+
+  const navigateToRestaurantDetails = (restaurantID) => {
+    navigation.navigate("ViewRestaurant", { restaurantID });
+  };
+
+  const amIaFavRestaurant = (restaurantID) => {
+    if (favRestaurants.findIndex(i => i === restaurantID) !== -1) {
+      return true;
+    }
+    return false;
+  };
+
+  return (
+    <View style={styles.container}>
+      {
+        isError ?
+          (<DisplayError message='Impossible de récupérer les restaurants favoris' />) :
+          (<FlatList
+            data={restaurants}
+            extraData={favRestaurants}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <RestaurantlistItem
+                restaurantData={item}
+                onClick={navigateToRestaurantDetails}
+                isFav={amIaFavRestaurant(item.id)} />
+            )}
+            refreshing={isRefreshing}
+            onRefresh={refreshFavRestaurants}
+          />)
+      }
+    </View>
+  );
+};
+
+const mapStateToProps = (state) => {
+  return {
+    favRestaurants: state.favRestaurantsID
+  }
+}
+
+export default connect(mapStateToProps)(FavRestaurants);
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 12,
+    marginTop: 16,
+  },
+});
+
+```
+
+_Assets.js_
+
+```
+import iconRate from '../../assets/rate.png';
+import iconReview from '../../assets/review.png';
+import iconError from '../../assets/error.png';
+import iconMissingIMG from '../../assets/missingImage.png';
+import iconFavEmpty from '../../assets/favEmpty.png';
+import iconFavFull from '../../assets/favFull.png';
+import iconSearch from '../../assets/search.png';
+
+const Assets = {
+  icons: {
+    rate: iconRate,
+    review: iconReview,
+    error: iconError,
+    missingIMG: iconMissingIMG,
+    favEmpty: iconFavEmpty,
+    favFull: iconFavFull,
+    search: iconSearch,
+  },
+};
+
+export default Assets;
+
+```
+
+
+</details>
+
+### Aller plus loin avec Redux
+
+Je n'ai évoqué ici que la base de Redux. Sachez qu'il est également possible :
+
+- De combiner des reducers (important de séparer les reducer par "logique", donc il faut les combiner à la fin pour les utiliser dans le store).
+- Séparer les actions dans des fichiers. Actuellement nos actions sont définies directement dans le code de nos composant. Il est préférable de créer un fichier par reducer contenant les actions (des fonctions) à importer dans les composants. En effet, il n'est pas rare que plusieurs composants effectus la même action.
+- Ajouter des middlewares (des actions qui vont se déclencher à certains moments).
+- Pour redux-persist, il est également possible de sélectionner les reducers à persister ou non. Cela peut être utile pour ne pas garder des infos temporaires à l'éxécution de l'app, mais conserver un utilisateur connecté depuis peu par exemple.
+
+## Idées d'améliorations
+
+Pour ceux qui sont bien en avance sur le cours, voici quelques idées à ajouter dans le projet. Il est possible que cela vous serve par la suite ;)
+
+- Possibilité d'ajouter des filtres dans la recherche (sur le type de restaurant, de cuisine, l'emplacement géographique, le prix... Il y a plein de possibilités)
+- Accéder au menu du restaurant
+- Afficher les dernières reviews sur la page du restaurant
+- Ajouter une autre page type "Accueil" dans un autre onglet avec une interface sous forme de card pour rapidement set les critères de recherche (par exemple, une card "Les meilleurs restaurants de Londres à petit prix" qui va rediriger vers l'onglet Search, avec la requête sur la liste des restaurants avec ces critères).
+- Ajouter d'autres types de navigation dans l'app
+
+# Other
+
+## Les bibliothèques graphique
+
+Jusqu'à présent, nous avons utilisé les composants de base de React Native (_Text_, _Button_) pour créer des composants personnalisés. Il existe également des bibliothèques de composants nous permettant de gagner beaucoup de temps lors du développement d'une application. Il est même très rare de ne pas les utiliser.
+
+Nous allons nous servire de **UI Kitten**, une des bibliothèque les plus populaire. [La documentation est disponible ici.](https://akveo.github.io/react-native-ui-kitten/docs/getting-started/what-is-ui-kitten#what-is-ui-kitten)
+
+Créez un nouveau projet avec Expo, puis installez UI Kitten :
+
+```
+expo init TestUIKitten
+
+npm i @ui-kitten/components @eva-design/eva react-native-svg
+expo install react-native-svg@9.13.6
+```
+
+Créez un composant _Home.js_ et modifiez le code de _App.js_. Vous devriez voir s'afficher "HOME" sur votre écran.
+
+<details>
+<summary>Code</summary>
+
+_Home.js_
+
+```
+import React from 'react';
+import { Layout, Text } from '@ui-kitten/components';
+import { StyleSheet } from 'react-native';
+
+const Home = () => {
+    return (
+        <Layout style={styles.container}>
+          <Text category='h1'>HOME</Text>
+        </Layout>
+    );
+};
+
+export default Home;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    }
+});
+```
+
+_App.js_
+
+```
+import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider} from '@ui-kitten/components';
+
+import Home from './src/component/Home';
+
+export default function App() {
+  return (
+    <ApplicationProvider {...eva} theme={eva.light}>
+        <Home/>
+        <StatusBar style="auto" />
+    </ApplicationProvider>
+  );
+}
+```
+
+</details>
+
+En plus d'ajouter des nouveaux composants (sélecteur de date, sélecteur multiples, séparation...), l'avantage principal de ce framework est de gérer les thèmes facilement à travers l'application. Pour l'initier, générer votre plage de couleurs via [ce site](https://colors.eva.design/?utm_campaign=eva_colors%20-%20home%20-%20kitten_docs&utm_source=ui_kitten&utm_medium=referral&utm_content=branding_article_link), exportez le fichier en format JSON et ajoutez le à la racine de votre projet. Modifiez _App.js_ :
+
+```
+...
+import { default as theme } from './theme.json';
+...
+    <ApplicationProvider {...eva} theme={{ ...eva.light, ...theme }}>
+...
+```
+
+Le fichier _theme.json_ contient la liste des couleurs utilisées par les composants de votre application. En modifiant une valeur, vous allez d'un seul coup modifier tous les composants. De plus en utilisant les bonnes propriétés dans vos composants, vous n'aurez plus besoin de définir le style à chaque fois.
+
+Par exemple
+
+```
+<Text status='danger'>Danger</Text>
+```
+
+aura toujours une couleur rouge (enfin la couleur **color-danger-400** de votre _theme.json_).
+
+## Déployer une app avec expo
+
+**ATTENTION: le passage au SDK 44 implique possiblement des changements**
+
+Pour déployer une app en stand alone :
+
+- Créez un compte sur expo (https://expo.io/signup)
+- Dans le fichier _app.json_, ajoutez
+
+```
+"expo" : {
+  ...
+  "android": {
+    "package": "com.entrepriseName.applicationName"
+  }
+}
+```
+
+- Coupez votre serveur
+- Supprimez le dossier .expo à la racine de votre projet
+- Utilisez la commande suivante :
+
+```
+expo build:android -t apk
+```
+
+Connectez-vous avec votre compte, et laissez expo se charger de la keystore. Cette clé est utilisée lors de l'upload sur le google PlayStore afin de signer l'app. Si vous le souhaitez, vous pouvez la récupérer pour la stocker avec la commande
+
+```
+expo fetch:android:keystore
+```
+
+Le build va se lancer. Il est effectué sur des serveurs à distance, avec une file d'attente qui peut être très longue (de quelques minutes à une dizaine d'heures parfois). Ne faite le build que à la fin de votre projet.  
+Vous pouvez suivre l'avancé du build dans votre compte expo. De plus, une fois que ce dernier est complété un lien est disponible dans les logs pour le télécharger depuis S3 (stockage Amazon).
