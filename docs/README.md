@@ -4159,14 +4159,14 @@ Installation (async-storage va nous permettre de stocker nos données ; on aurai
 
 ```
 npm install redux-persist
-npm install @react-native-community/async-storage
+npm install @react-native-async-storage/async-storage
 ```
 
 Définition du store (_store/config.js_)
 
 ```
 import { persistStore, persistReducer } from 'redux-persist';
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 ...
 
 const configPersist = {
