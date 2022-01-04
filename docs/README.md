@@ -4197,3 +4197,79 @@ export default function App() {
 La prop _loading_ permet de définir un composant à afficher tant que le store n'est pas réhydraté (par exemple, un _ActivityIndicator_). De nombreuses options sont disponibles avec _redux-persist_, je vous encourage à regarder le dépot Git
 
 **Mettez en place redux-persist dans le projet**
+
+<details>
+<summary>Correction</summary>
+
+_config.js_
+
+```
+import { createStore } from 'redux';
+import { persistStore, persistReducer } from 'redux-persist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import favRestaurantsReducer from './reducers/favRestaurants';
+
+const configPersist = {
+  key: 'root',
+  storage: AsyncStorage,
+};
+
+const reducerPersist = persistReducer(configPersist, favRestaurantsReducer);
+
+export const Store = createStore(reducerPersist);
+export const Persistor = persistStore(Store);
+
+```
+
+_App.js_
+
+```
+import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { RootSiblingParent } from 'react-native-root-siblings';
+
+import Navigation from './src/navigation/Navigation';
+import { Store, Persistor } from './src/store/config';
+
+export default function App() {
+  return (
+    <Provider store={Store}>
+      <PersistGate loading={null} persistor={Persistor}>
+        <RootSiblingParent>
+          <NavigationContainer>
+            <Navigation />
+            <StatusBar style="auto" />
+          </NavigationContainer>
+        </RootSiblingParent>
+      </PersistGate>
+    </Provider>
+  );
+}
+
+```
+
+</details>
+
+### Consulter les restaurants favoris
+
+Dernière fonctionnalité à ajouter au projet : séparer la vue en 2 tabs permettant de soit faire une recherche, soit consulter les restaurants en favoris. Voici les 2 étapes à réaliser :
+
+- modifiez la navigation en utilisant le composant _BottomTabNavigator_
+- effectuez les changements nécessaires pour consulter les restaurants sauvegardés
+
+Pour le premier point, je vous laisse consulter la documentation. Cela fonctionne de la même façon que le _StackNavigator_ ; pensez juste à inclure la navigation de recherche dans la navigation en tab
+
+Pour le second point, prenez en compte les éléments suivants :
+
+- réutilisez les composants que vous avez développé, c'est tout l'interet !
+- pensez à faire les requêtes necessaires pour récupérer les restaurants favoris, et rafraichir les données quand les restaurants favoris changent
+
+Résultat attendu :
+
+<img src="img/tab1.png" height="400" />
+<img src="img/tab2.png" height="400" />
+
